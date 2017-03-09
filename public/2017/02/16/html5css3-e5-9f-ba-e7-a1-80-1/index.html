@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>[HTML5/css3] - 基础 - 1 | 赤晨</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. native app -&amp;gt; webApp -&amp;gt; hybrid app
+2. 标签变化1). &amp;lt;!DOCTYPE HTML&amp;gt; - 说明html版本html4 -&amp;gt; loose/transitional/strict dtdhtml5 -&amp;gt; 不需要引入dtd 和原来doctype相同，why？2） dtd -&amp;gt; doc type definition(x">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[HTML5/css3] - 基础 - 1">
+<meta property="og:url" content="http://yoursite.com/2017/02/16/html5css3-e5-9f-ba-e7-a1-80-1/index.html">
+<meta property="og:site_name" content="赤晨">
+<meta property="og:description" content="1. native app -&amp;gt; webApp -&amp;gt; hybrid app
+2. 标签变化1). &amp;lt;!DOCTYPE HTML&amp;gt; - 说明html版本html4 -&amp;gt; loose/transitional/strict dtdhtml5 -&amp;gt; 不需要引入dtd 和原来doctype相同，why？2） dtd -&amp;gt; doc type definition(x">
+<meta property="og:updated_time" content="2017-03-07T08:02:49.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[HTML5/css3] - 基础 - 1">
+<meta name="twitter:description" content="1. native app -&amp;gt; webApp -&amp;gt; hybrid app
+2. 标签变化1). &amp;lt;!DOCTYPE HTML&amp;gt; - 说明html版本html4 -&amp;gt; loose/transitional/strict dtdhtml5 -&amp;gt; 不需要引入dtd 和原来doctype相同，why？2） dtd -&amp;gt; doc type definition(x">
+  
+    <link rel="alternate" href="/atom.xml" title="赤晨" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">赤晨</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">上帝没有给我们想要的，他给我们更好的。</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-html5css3-e5-9f-ba-e7-a1-80-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/02/16/html5css3-e5-9f-ba-e7-a1-80-1/" class="article-date">
+  <time datetime="2017-02-15T23:54:35.000Z" itemprop="datePublished">2017-02-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/tech/">学海无涯我游啊游</a>►<a class="article-category-link" href="/categories/tech/htmlcss/">HTML/css（HTML5/css3)</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      [HTML5/css3] - 基础 - 1
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>1. native app -&gt; webApp -&gt; hybrid app</p>
+<p>2. 标签变化<br>1). &lt;!DOCTYPE HTML&gt; - 说明html版本<br>html4 -&gt; loose/transitional/strict dtd<br>html5 -&gt; 不需要引入dtd 和原来doctype相同，why？<br>2） dtd -&gt; doc type definition(xml) 定义一系列合法元素的结构（W3C） 但html5 不是基于此定义。</p>
+<p>3. 新增标签<br>-结构 ——相当于div 但是增加了语义<br>1）article 定义了一篇文章<br>2）header 一个页面或一个区域的头部<br>3）nav 导航链接<br>4）section 定义一个区域（类似div）<br>5）aside 定义页面部分的侧栏<br>6）hgroup 标题组 h1，h2<br>7）figure 一组多媒体内容及其标题<br>8）figcaption figure元素标题<br>9）footer 一个页面或一个区域底部<br>10）dialog 定义一个对话框<br>补充：header/section/aside/article/footer 一般不要嵌套使用 header/section/footer &gt; aside/article/figure/hgroup/nav &gt; div</p>
+<p>-多媒体标签：<br>1) video<br>2) audio<br>3) source<br>—example: &lt;audio src=”sample.mp3” autoplay=”autoplay” loop=”-1” controls=”controls”&gt;browser not support meida&lt;/audio&gt;<br>&lt;video src=”sample.mp4” autoplay=”autoplay” loop=”-1” controls=”controls”&gt;&lt;/video&gt;<br>—-source -&gt; 文件格式兼容性问题<br>&lt;audio autoplay=”autoplay”&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;source src=”sample.mp3” type=”audio/mpeg”&gt;<br>&lt;/audio&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type-&gt;转码器<br>&lt;video controls=”controls” width=”” height””&gt;<br>&nbsp;&nbsp;&nbsp; &lt;source src=”sample.mp4” type=”video/mp4”&gt;<br>&lt;/video&gt;<br>4) canvas<br>5) embed -flash &lt;embed src=”sample.swf”&gt;&lt;/embed&gt;<br>&nbsp;<br>-状态标签<br>1) meter 气压/温度/电压等 (chrome, opera)<br>&lt;meter value=”” min=”” max=”” low=”” high=”” optimum=””&gt;&lt;/meter&gt; 会根据各值的区间显示当前状态，若只有value将按百分比计算<br>2) progress (chrome ff opera)<br>&lt;progress value=”” max=””&gt; 根据value和max的值计算其加载进度<br>&lt;progress max=””&gt; 加载中动画<br>-列表标签<br>1) datalist<br>&lt;input placeholder=”” list=””&gt;<br>&lt;datalist id=”plist”&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;option value=””&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;option value=””&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;/option&gt;<br>&lt;/datalist&gt;&lt;/input&gt;<br>2) details<br>&lt;details open=”open”&gt;&lt;summary&gt;&lt;/summary&gt;&lt;p&gt;&lt;/p&gt;&lt;/details&gt;<br>-menu标签 主流浏览器支持不好</p>
+<p>-其他标签<br>1) ruby，rt，rp -注释（音标）rp针对不兼容rt的浏览器的fallback<br>&lt;ruby&gt;&lt;rp&gt;&lt;/rp&gt;&lt;rt&gt;content&lt;/rt&gt;&lt;rp&gt;&lt;/rp&gt;&lt;/ruby&gt;<br>2) mark<br>3) output 对应表单input用于打印结果，配合form oninput事件</p>
+<p>4.删除的标签<br>1) basefont, big, center, font, s, strike, tt, u (偏向styling的标签）<br>2）frame, frameset, noframes（对可用性造成负面影响）<br>3) acronym, applet isindex, dir（混淆元素）</p>
+<p>5. 重定义标签<br>1) b, i -没有重要的意义<br>2) dd, dt -原本是dl下的标签，现在可以和details, figure一起使用<br>3) hr -水平线<span style="text-decoration: underline;">并表示主题结束</span><br>4) small 小字体并表示批注<br>5) strong 重要性</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/02/16/html5css3-e5-9f-ba-e7-a1-80-1/" data-id="cizz8lgdy0029tcsyvlvwqgl1" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/02/16/e5-88-b7-e9-a2-98-e5-90-8e-e6-84-9f-ef-bc-8d-js-ef-bc-8d-3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          刷题后感 － JS － 3
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/02/15/js-e5-9f-ba-e7-a1-80-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">[JS] - 基础 - 2</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/tech/">学海无涯我游啊游</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/tech/htmlcss/">HTML/css（HTML5/css3)</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tech/js/">Javascript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tech/interview/">去特么的面试题</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/tech/algorithm/">数据结构算法</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/st/">短逼逼</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/lt/">长叨叨</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/03/02/e5-8f-af-e6-80-9c-e5-a4-9c-e5-8d-8a-e8-99-9a-e5-89-8d-e5-b8-ad/">可怜夜半虚前席</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/25/e7-ae-97-e6-b3-95-e6-8e-92-e5-ba-8f/">[算法] - 排序</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/25/e7-ae-97-e6-b3-95-e3-80-91-kmp/">[算法]- kmp</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/20/bootstrap-e5-9f-ba-e7-a1-80-2/">[Bootstrap] - 基础 - 2</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/17/bootstrap-e5-9f-ba-e7-a1-80-1/">[Bootstrap] - 基础 - 1</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Arron Lai<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
