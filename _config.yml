@@ -7,7 +7,7 @@ title: 赤晨
 subtitle: 上帝没有给我们想要的，他给我们更好的。
 description: Blog
 author: Arron Lai
-language:
+language: zh-Hans
 timezone:
 
 # URL
@@ -70,7 +70,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
