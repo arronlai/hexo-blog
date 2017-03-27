@@ -1,0 +1,800 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="赤晨" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="1. 运算顺序：算术&amp;gt;比较&amp;gt;逻辑&amp;gt;赋值
+2. a++ ++a
+3. 数组可以指定长度，如new Array(12);但实际还是变长的，可以储存长度之外个数组。
+&amp;nbsp;&amp;nbsp;&amp;nbsp; .length
+&amp;nbsp;&amp;nbsp;&amp;nbsp; 二维数组：相当于一维数组的元素是数组
+4. switch
+switch() {
+&amp;nbsp;&amp;nbsp;&amp;nbsp; case 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[JS] - 基础 - 2">
+<meta property="og:url" content="http://yoursite.com/2017/02/15/JS/JS - 基础 - 2/index.html">
+<meta property="og:site_name" content="赤晨">
+<meta property="og:description" content="1. 运算顺序：算术&amp;gt;比较&amp;gt;逻辑&amp;gt;赋值
+2. a++ ++a
+3. 数组可以指定长度，如new Array(12);但实际还是变长的，可以储存长度之外个数组。
+&amp;nbsp;&amp;nbsp;&amp;nbsp; .length
+&amp;nbsp;&amp;nbsp;&amp;nbsp; 二维数组：相当于一维数组的元素是数组
+4. switch
+switch() {
+&amp;nbsp;&amp;nbsp;&amp;nbsp; case 1">
+<meta property="og:updated_time" content="2017-03-10T13:46:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[JS] - 基础 - 2">
+<meta name="twitter:description" content="1. 运算顺序：算术&amp;gt;比较&amp;gt;逻辑&amp;gt;赋值
+2. a++ ++a
+3. 数组可以指定长度，如new Array(12);但实际还是变长的，可以储存长度之外个数组。
+&amp;nbsp;&amp;nbsp;&amp;nbsp; .length
+&amp;nbsp;&amp;nbsp;&amp;nbsp; 二维数组：相当于一维数组的元素是数组
+4. switch
+switch() {
+&amp;nbsp;&amp;nbsp;&amp;nbsp; case 1">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/02/15/JS/JS - 基础 - 2/"/>
+
+
+
+
+
+  <title> [JS] - 基础 - 2 | 赤晨 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">赤晨</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">上帝没有给我们想要的，他给我们更好的。</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/15/JS/JS - 基础 - 2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Arron Lai">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="赤晨">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                [JS] - 基础 - 2
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-15T15:23:06+08:00">
+                2017-02-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">学海无涯我游啊游</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/js/" itemprop="url" rel="index">
+                    <span itemprop="name">Javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>1. 运算顺序：算术&gt;比较&gt;逻辑&gt;赋值</p>
+<p>2. a++ ++a</p>
+<p>3. 数组可以指定长度，如new Array(12);但实际还是变长的，可以储存长度之外个数组。</p>
+<p>&nbsp;&nbsp;&nbsp; .length</p>
+<p>&nbsp;&nbsp;&nbsp; 二维数组：相当于一维数组的元素是数组</p>
+<p>4. switch</p>
+<p>switch() {</p>
+<p>&nbsp;&nbsp;&nbsp; case 1:</p>
+<p>&nbsp;&nbsp;&nbsp; break;</p>
+<p>&nbsp;&nbsp;&nbsp; default:</p>
+<p>}</p>
+<p>注意 break;</p>
+<p>5. for, while, do while -&nbsp; break;&nbsp; continue;</p>
+<p>6. 事件 onclick, onmouseover, onmouseout, onfocus, onselect, onchange, onload, onunload(window close)</p>
+<p><em>7. 对象</em></p>
+<p>1) Date</p>
+<p>A. new Date(); new Date(2017,2,15); new Date(“Oct 1 2017”);</p>
+<p>B. 方法：getFullYear(); getDay(); getTime(); setTime(); - 注：milliseconds</p>
+<p>2) String</p>
+<p>A. 方法：toUpperCase(); toLowerCase; charAt(); indexOf(substr, pos); split(char, limit); substring(start, end);&nbsp; substr(start, length);</p>
+<p>3) Math</p>
+<p>A. 方法：ceil(); floor(); round(); random(); （注：无参数）</p>
+<p>4) Array</p>
+<p>A. new Array(); new Array(10); new Array(1,2,3);</p>
+<p>B. 方法：concat();（注：不修改数组本身） join();（注：可空，逗号）reverse(); slice(start, end);（注：end可省可负，不改变原数组）sort(function()); （注：－1，1）</p>
+<p><em>8. window对象</em></p>
+<p>1) setInterval(function, interval); 注：interval以milliseconds计算。clearInterval(i);</p>
+<p>2) setTimeout(function, time); clearTimeout(i);</p>
+<p>9. History 对象</p>
+<p>1) 属性：length</p>
+<p>2) 方法：go();（注：代表向前或向后多少页） back(); forward();</p>
+<p>10. Location</p>
+<p>获取与当前地址相关信息</p>
+<p>href, window.location.reload(); window.location.assign();</p>
+<p>11. Navagator</p>
+<p>当前browser相关信息</p>
+<p>1) userAgent; -&gt; 用户代理字符串</p>
+<p>12. screen (window.screen/screen)</p>
+<p>1)属性：width, height, availWidth, availHeight</p>
+<hr>
+<p>12. DOM</p>
+<p>1) getElementById(); getElementsByName(); getElementsByTagName();</p>
+<p>2) getAttribute(); setAttribute(name, value);</p>
+<p>3) nodeName, nodeValue, nodeType</p>
+<p>4) childNodes, parentNode, firstChild, lastChild, nextSibling, previousSibling</p>
+<p>5) appendChild(); insertBefore(,); removeChild(node); replaceChild(new, old);</p>
+<p>6) document.createElement(); （注：创建元素节点，参数为tag name）document.createTextNode(); （注：创建的即为普通文本节点）</p>
+<hr>
+<p>13. 网页尺寸</p>
+<p>1) 窗口宽高：cross browser：document.documentElement.clientWidth || document.body.clientWidth; document.documentElement.clientHeight || document.body.clientHeight;</p>
+<p>2) 内容宽高: cross browser: document.documentElement.scrollWidth || document.body.scrollWidth; document.documentElement.scrollHeight || document.body.scrollHeight; 注：IE，Opera返回值可比clientHeight/clientWidth小，FF返回最小值等于窗口宽高。</p>
+<p>3) 网页宽高：offsetHeight/offsetWidth = clientHeight/clientWidth + 滚动条 ＋ 边框</p>
+<p>4) 滚动距离: scrollTop; scrollLeft; offsetTop; offsetLeft; （注：offset相对于该元素的父元素）</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/14/JS/JS - 基础 - 1/" rel="next" title="[JS] - 基础 - 1">
+                <i class="fa fa-chevron-left"></i> [JS] - 基础 - 1
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/16/HTML5CSS/H5 - 基础 - 2/" rel="prev" title="[HTML5/css3] - 基础 - 2">
+                [HTML5/css3] - 基础 - 2 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.jpeg"
+               alt="Arron Lai" />
+          <p class="site-author-name" itemprop="name">Arron Lai</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arron Lai</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
