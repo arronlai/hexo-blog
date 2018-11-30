@@ -1,4 +1,6 @@
 
-themes/next/
+themes/
+
+node_modules/
 
 .deploy_git/
