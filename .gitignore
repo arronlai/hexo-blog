@@ -4,3 +4,5 @@ themes/
 node_modules/
 
 .deploy_git/
+
+package_lock.json
