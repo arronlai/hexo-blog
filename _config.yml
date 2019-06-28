@@ -113,5 +113,5 @@ qiniu:
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/ARRONLAI/arronlai.github.io
+  repo: https://github.com/arronlai/arronlai.github.io
   branch: master

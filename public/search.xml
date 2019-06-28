@@ -4,8 +4,35 @@
   
     
     <entry>
+      <title><![CDATA[（回顾）性能调优实践 gzip, brotli, https, angular]]></title>
+      <url>http://yoursite.com/2019/06/28/%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E5%AE%9E%E8%B7%B5/</url>
+      <content type="html"><![CDATA[<p>前端性能优化</p>
+<p>标题可能起的有点大，这次是实践是对目前在做的项目的一次性能调优，但是也没有尝试所有方式。</p>
+<p>起因是我们的网站被客户吐槽慢。。。</p>
+<p>然后开始了性能调优。</p>
+<h1 id="gzip实践"><a href="#gzip实践" class="headerlink" title="gzip实践"></a>gzip实践</h1><p>服务器端的优化是首先想到的方法，因为这个优化的力度是前端code层面优化比不了的。项目是Angular6的，打包之后用–stats-json和webpack-bundle-analyzer可以看到目前打包之后各个js的大小以及gzip压缩之后的大小，gzip压一压，最少能小一半，有些能压到十分之一。<br>gzip的原理是在服务器进行配置，对制定类型的文件采用gzip压缩，客户端在获得传输的数据之后再进行解压。通过这个方式可以减少文件传输的时间，但是会增加压缩和解压的时间，所以对于一些很小的文件是不建议启用gzip的（服务器配置的时候也可以设置文件大小）。<br>配置大概是</p>
+<p><code>LoadModule deflate_module modules/mod_deflate.so
+AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript</code></p>
+<p>在httpd.conf开启mod_deflate，然后选一下文件类型。</p>
+<p>本地build了一个docker测试 =&gt; 快得一批！</p>
+<p>部署到服务器打开网站 =&gt; <strong>没得卵用</strong>！又改了几次配置，部署到服务器上都是一样。</p>
+<p>开始怀疑gzip，开始怀疑服务器，开始怀疑自己。</p>
+<ul>
+<li>问题：本地测试gzip生效，但服务器上相同配置gzip后不生效。</li>
+<li>思路：服务器的机器和本地机器肯定有不同，但是两边最终都是build出来docker image，image内的环境配置和安装的软件都是一样的，搜了“gzip不生效”找到的基本是怎么配置gzip -&gt; 两边不同的还有协议，服务器端proxy设置了强制ssl，所有访问都是https本地是<a href="http://localhost，搜“gzip" target="_blank" rel="noopener">http://localhost，搜“gzip</a> https 不生效”找到答案：因为有BREACH（大致是ssl会对文件加密，以保护文件内容不被他人获取和篡改）但是如果引入gzip，hackers可以通过victim的机器发送大量明文请求和压缩算法(gzip 压缩在 HTTP 中的工作方式是这样：如果在响应中有同一个字符串的多个实例，第一个实例将被保留，而其余实例将被替换成指向第一个实例位置的短引用，以减少响应消息的体积)来破解文件内容。=&gt; SSL和gzip不能同时使用（搜索时候找到了一个关于apache的SSLCompression的配置，进行了尝试，无果）</li>
+</ul>
+<h1 id="Brotli实践"><a href="#Brotli实践" class="headerlink" title="Brotli实践"></a>Brotli实践</h1><ul>
+<li>问题：SSL和gzip不能同时使用，对于我们现有site SSL不能disable =&gt; 无法实现服务器端优化？</li>
+<li>思路：(看看别人是怎么做的）-&gt; bootstrap，load很快，它也是https，接着看了network，<img title="bootstrap_brotli" alt="bootstrap_brotli" src="http://on3eu0vfd.bkt.clouddn.com/static/images/performance190627/performance-bootstrap-brotli.png"></li>
+</ul>
+]]></content>
+      
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[最长回文子串]]></title>
-      <url>http://yoursite.com/2017/03/22/%E7%AE%97%E6%B3%95/%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2/</url>
+      <url>http://yoursite.com/2018/11/27/%E7%AE%97%E6%B3%95/%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2/</url>
       <content type="html"><![CDATA[<p>1.0 快乐的n<sup>3</sup>算法</p>
 <pre>
 var longestPalindrome = function(s) {
@@ -83,25 +110,8 @@ var longestPalindrome = function(s) {
     </entry>
     
     <entry>
-      <title><![CDATA[你说的对]]></title>
-      <url>http://yoursite.com/2017/03/20/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E4%BD%A0%E8%AF%B4%E7%9A%84%E5%AF%B9/</url>
-      <content type="html"><![CDATA[<p>一些话听起来就像是一个拿捏不好分寸的医生在给你动手术，麻醉的劲儿过了他还在切割缝补。<br><br>你知道他的一举一动都是为了你好，但看着自己淌血，感受着皮肉被针线拉扯都太难熬了。<br><br>对了，还有那些一点一点慢慢苏醒的活生生的痛。<br><br>——你说的都对，但你能不能别说了。</p>
-]]></content>
-      
-        <categories>
-            
-            <category> 短逼逼 </category>
-            
-            <category> 我只是打个比方 </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[js - 基础编程练习]]></title>
-      <url>http://yoursite.com/2017/03/11/JS/JS%20-%20%E5%9F%BA%E7%A1%80%20-%203/</url>
+      <url>http://yoursite.com/2018/11/27/JS/JS%20-%20%E5%9F%BA%E7%A1%80%20-%203/</url>
       <content type="html"><![CDATA[<p>题目描述</p>
 <p>实现函数 makeClosures，调用之后满足如下条件：</p>
 <p>1、返回一个函数数组 result，长度与 arr 相同</p>
@@ -447,7 +457,7 @@ function makeClosures(arr, fn) {
 
 <p>&nbsp;</p>
 <p>数组里存的是每次字符串A，B不匹配时候应该把字符串B移到什么位置，利用这个数组KMP的实现如下：</p>
-<p>demo：<a href="https://arron-lai.github.io/algorithm/kmp" target="_blank" rel="external">https://arron-lai.github.io/algorithm/kmp</a></p>
+<p>demo：<a href="https://arron-lai.github.io/algorithm/kmp" target="_blank" rel="noopener">https://arron-lai.github.io/algorithm/kmp</a></p>
 ]]></content>
       
         <categories>
@@ -681,7 +691,7 @@ function makeClosures(arr, fn) {
 <p>window.open(string url, string name, string params)&nbsp; name(‘_blank’, ‘_self’, ‘_top’); params包括window距离屏幕的位置，window大小，menubar、scrollbar是否包括等。</p>
 <p>window.close(); - 关闭当前窗口 or [窗口对象].close();</p>
 <p>5. DOM</p>
-<p>1) Document Object Model将html呈现为节点树结构（包括元素，属性，文本三种节点）eg.&lt;a href=”http”//www.arronlai.com”&gt;click me&lt;/a&gt;</p>
+<p>1) Document Object Model将html呈现为节点树结构（包括元素，属性，文本三种节点）eg.&lt;a href=”http”//<a href="http://www.arronlai.com&quot;&gt;click" target="_blank" rel="noopener">www.arronlai.com&quot;&gt;click</a> me&lt;/a&gt;</p>
 <p>2) document.getElementById() 返回HTML Object</p>
 <p>3) .innerHTML</p>
 <p>4) .style.property (display)</p>
@@ -767,47 +777,6 @@ green; blue - this指针对于普通函数调用指向window对象。<br>2.<img 
             <category> 学海无涯我游啊游 </category>
             
             <category> HTML/css（HTML5/css3) </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[我想尽力记住的那些开始和结束]]></title>
-      <url>http://yoursite.com/2017/02/13/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E6%88%91%E6%83%B3%E5%B0%BD%E5%8A%9B%E8%AE%B0%E4%BD%8F%E7%9A%84%E9%82%A3%E4%BA%9B%E5%BC%80%E5%A7%8B%E5%92%8C%E7%BB%93%E6%9D%9F/</url>
-      <content type="html"><![CDATA[<p>站地铁上发呆的时候思考了一下，其实很多特别琐碎平常的事情，一旦有了次数就会变得意义非凡。比如第一次走路，第十次结婚纪念日。</p>
-<p>当然，第几次这种东西，慢慢我们就忘记了。于是，我们也学会了记下最后那几次。比如和某人的最后一面，程序里的最后一个bug（好吧，这种情况可能并不会发生），谁谁的最后几场演唱会。所以，刚刚脑子里蹦哒的念头是：这说不定是我最后一次来这个球场打球了。</p>
-<p>哦对，刚刚是在打球，以及，打的是羽毛球。篮球，我够不到。和几个马来的、中国的小伙伴（其实我是最年轻的）一起。说起来，这个群算是我刚到这里就开始陪我的了。转念一想，今天可能也是倒数几次见这些人了，居然有些舍不得。用居然这个词是我觉得，我其实心里应该不会有什么波动，我其实应该理解了公司里听的那句’people come, people leave.’，可不就是这个样子吗。但是吧，有些个小情绪又不配合。</p>
-<p>既然说的不舍，那不舍的是人还是这个城市啊。说不清楚。对这里似乎是有一些好感的，比如还真是挺干净的，比如一些水果真的好吃到爆，很多人都还非常温柔友好呀。</p>
-<p>然后，关于那些舍不得的人，会是谁呢？</p>
-<p>会不会是现在和我住一个屋子的那对情侣。我先认识的是那个女生，同个学院，不同专业，读书时候合租的。典型双子座，逼逼叨叨，一天可以聊炸三个人。所以我是怎么认识的这货，那天好像天气不错，我们合租的人要一起见第一面，提心掉胆的就去了。然后我是在下车时候看见这货，戴了个墨镜——诶，装什么x。后来啊，后来就去吃饭啦，她吃了两份。接下来，转了转学校，然后这姑娘语出惊人地问了些问题，我被抓去帮她提了行李。第一次见面大概就是这样。你好，室友x。后来见到她男朋友m，第一次见面似乎是他跑来我家送什么东西给他娘子。挎着一个白色的布包进来说了一句‘hello’。第一印象：嗯！确实是新疆人。在聊了几句之后发现：没错！就是新疆人。现在，被迫和这俩人合租着，每天要听到一些奇怪的get不到的点和莫名的一些绰号。不过还好同屋有时差基本不会被虐狗——心满意足。</p>
-<p>那么，又会不会是另外两只名字很有趣室友，一男一女，不是情侣。讲真，知道他俩名字分别是哪几个字的时候我还是吃了一惊的。第一次见面是在一个天大地大的狼人杀局上，那一天，我们两个专业的好看的人们聚在了一起。至于这个局有多大？这么说吧，发言一圈四十多分钟，人齐了之后我们一个晚上就打了一局。我记得那一局，这只女生当的上帝。天啦，落落大方！那个男生是守卫——他！不！会！玩！哦对，我是女巫，然后好人血崩了。后来啊，我们五个凑在一起合租了，吃了几顿饭（我不要脸地缺了几次）。以及他们做吃的超级好吃啊！先说女生啊，很自律，果断，效率超高，且分析事情很冷静，被我们叫哥。家居用品基本是她买的，还搭了一个放在厕所用的塑料白色架子。一言蔽之，特！别！优！秀！然后她率先找到了工作，因为远搬了出去，家庭饭局上我们还会聚到一起。男生，重庆孩子，处女座，是个吃货，喜欢做饭，勤劳勇敢（这句只是为了押韵），房间很整洁。他爱打麻将，家里刚装wifi就每天上网打麻将，赌钱，啧啧啧。这人口头禅是“哎呀，累死了。”，一边手还摸着自己的肚子——亲测手感不错，软乎乎的。</p>
-<p>还有，那个名字里藏着一个angel的女孩子。她是个瘦瘦小小，白白净净的女生，湖北人，能吃辣但是有节制地不乱吃。关系是室友和同学，所以经常一起去上课，一起回家，期末时候一起焦头烂额抓耳挠腮地通宵，去图书馆也有占座情谊。她学习很认真，一个常见的画面是我睡醒开始问她刚才在干嘛。生活也很认真——每天坚持跑步，有空就会自己做饭，家常菜都不在话下。有一次吃过她做的咖喱面，简直好吃炸了！还有一次是，她用湿毛巾捂着口鼻在厨房炒辣椒，客厅弥漫了两个小时的干辣椒味道，我们的鼻子都红红的，每个人脸上都洋溢着吃了辣椒后的喜悦。现在，她在一个蛮好的g姓公司工作，和我们另一个同学，一个名字红彤彤的小胖子在一个部门，啊不！他减肥成功了，一个名字红彤彤的小瘦子。</p>
-<p>我想认认真真和你们告别，但是见面可能还是逗逼地笑笑煽不出什么情来，不如，写点什么吧。</p>
-<p>那我长话短说，你们要好好的。</p>
-]]></content>
-      
-        <categories>
-            
-            <category> 长叨叨 </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[关于我爱你和你爱我]]></title>
-      <url>http://yoursite.com/2017/02/12/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E5%85%B3%E4%BA%8E%E6%88%91%E7%88%B1%E4%BD%A0%E5%92%8C%E4%BD%A0%E7%88%B1%E6%88%91/</url>
-      <content type="html"><![CDATA[<p>有一个问题是，</p>
-<p>一个所有人都自私的世界和所有人都无私的世界是不是相同的。</p>
-<p>因为其实每个人都有人爱，每个人都被人爱。</p>
-]]></content>
-      
-        <categories>
-            
-            <category> 短逼逼 </category>
             
         </categories>
         
@@ -908,27 +877,6 @@ green; blue - this指针对于普通函数调用指向window对象。<br>2.<img 
     </entry>
     
     <entry>
-      <title><![CDATA[贪心]]></title>
-      <url>http://yoursite.com/2017/02/11/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E8%B4%AA%E5%BF%83/</url>
-      <content type="html"><![CDATA[<p>发现了两个人小小的贪心，</p>
-<p>说想要某人出人头地，又希望他不必奔波劳碌。</p>
-<p>大概的愿望是某人能不费太大力气实现他那些要费很多力气的事情，</p>
-<p>差不多是希望他以后可以不劳而获且健康快乐。</p>
-<p>啧，真的是很贪心呀。</p>
-<p>&nbsp;</p>
-<p>——父母心</p>
-]]></content>
-      
-        <categories>
-            
-            <category> 短逼逼 </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[[HTML] - 基础 - 1]]></title>
       <url>http://yoursite.com/2017/02/11/HTML5CSS/HTML%20-%20%E5%9F%BA%E7%A1%80%20-%201/</url>
       <content type="html"><![CDATA[<p>1 基本结构：</p>
@@ -975,7 +923,7 @@ green; blue - this指针对于普通函数调用指向window对象。<br>2.<img 
 <p>&lt;/table&gt;</p>
 <p>（tbody 加载完毕显示全部，summary-语义）</p>
 <p>14) &lt;a href=”” title=”” target=”_blank”&gt;&lt;/a&gt;</p>
-<p>15) href=”mailto:yy@gmail.com?cc=&amp;bcc=&amp;subject=&amp;body=”</p>
+<p>15) href=”mailto:<a href="mailto:yy@gmail.com" target="_blank" rel="noopener">yy@gmail.com</a>?cc=&amp;bcc=&amp;subject=&amp;body=”</p>
 <p>16) &lt;img src=”” title=”” alt=”” /&gt;</p>
 <p>17) &lt;form method=”” action=””&gt;&lt;/form&gt;</p>
 <p>19) &lt;input type=”” name=”” /&gt;</p>
@@ -1006,39 +954,6 @@ green; blue - this指针对于普通函数调用指向window对象。<br>2.<img 
 <p>让你看着这山川河流，浩瀚宇宙而敬畏，而臣服。</p>
 <p>然后，你会听见人们铿锵的低语</p>
 <p>看啊，果不其然。</p>
-]]></content>
-      
-        <categories>
-            
-            <category> 短逼逼 </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[如果你要离去]]></title>
-      <url>http://yoursite.com/2017/02/10/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E5%A6%82%E6%9E%9C%E4%BD%A0%E8%A6%81%E7%A6%BB%E5%8E%BB/</url>
-      <content type="html"><![CDATA[<p>如果你要离去，就抽身而退，或者落荒而逃。</p>
-<p>就不必准备一场盛大的告别。</p>
-<p>反正想念你的人也会想念你，</p>
-<p>反正后会有期。</p>
-]]></content>
-      
-        <categories>
-            
-            <category> 短逼逼 </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[你好，再见。]]></title>
-      <url>http://yoursite.com/2017/01/08/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/hello-world-1/</url>
-      <content type="html"><![CDATA[<p>就好像所有别的什么地方一样，咄咄逼人，予取予求。磨灭了你所有期待和耐心后，反而带着暖心的微笑把宽恕的目光投向你。温柔地开导你：年轻人，你看，这是我们的情怀。</p>
 ]]></content>
       
         <categories>

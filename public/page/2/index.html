@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 
 
 
@@ -6,15 +6,23 @@
 
 
 <html class="theme-next muse use-motion" lang="zh-Hans">
-<head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
 
 
 
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
 
 
 
@@ -32,57 +40,41 @@
 
   
   
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-  
-  
-  
-  
-
-  
-    
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
 
 
 
 
 
 
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
 
-<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
 
-
-  <meta name="keywords" content="Hexo, NexT" />
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
 
 
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
 
 
 
-  <link rel="alternate" href="/atom.xml" title="赤晨" type="application/atom+xml" />
+
+
+  <meta name="keywords" content="Hexo, NexT">
 
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+  <link rel="alternate" href="/atom.xml" title="赤晨" type="application/atom+xml">
 
 
 
@@ -95,6 +87,7 @@
 <meta property="og:url" content="http://yoursite.com/page/2/index.html">
 <meta property="og:site_name" content="赤晨">
 <meta property="og:description" content="Blog">
+<meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="赤晨">
 <meta name="twitter:description" content="Blog">
@@ -106,9 +99,11 @@
   var CONFIG = {
     root: '/',
     scheme: 'Muse',
-    sidebar: {"position":"left","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
-    motion: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
       author: '博主'
@@ -125,17 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/page/2/"/>
+  <link rel="canonical" href="http://yoursite.com/page/2/">
 
 
 
 
 
-  <title> 赤晨 </title>
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
-
+  <title>赤晨</title>
   
 
 
@@ -145,11 +136,9 @@
 
 
 
+</head>
 
-
-
-
-
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
   
   
@@ -157,17 +146,16 @@
   
 
   <div class="container sidebar-position-left 
-   page-home 
- ">
+  page-home">
     <div class="headband"></div>
 
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-wrapper">
   <div class="site-meta ">
     
 
     <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
+      <a href="/" class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
         <span class="site-title">赤晨</span>
         <span class="logo-line-after"><i></i></span>
@@ -197,49 +185,39 @@
         <li class="menu-item menu-item-home">
           <a href="/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
             
             首页
           </a>
         </li>
       
         
-        <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
             
             分类
           </a>
         </li>
       
         
-        <li class="menu-item menu-item-about">
-          <a href="/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
         <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
+          <a href="/archives/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
             
             归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
           </a>
         </li>
       
@@ -271,16 +249,20 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/15/JS/JS - 基础 - 2/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Arron Lai">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
+      <meta itemprop="image" content="/images/avatar.gif">
     </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="赤晨">
     </span>
 
@@ -290,16 +272,8 @@
         
         
           <h2 class="post-title" itemprop="name headline">
-            
-            
-              
                 
-                <a class="post-title-link" href="/2017/02/15/JS/JS - 基础 - 2/" itemprop="url">
-                  [JS] - 基础 - 2
-                </a>
-              
-            
-          </h2>
+                <a class="post-title-link" href="/2017/02/15/JS/JS - 基础 - 2/" itemprop="url">[JS] - 基础 - 2</a></h2>
         
 
         <div class="post-meta">
@@ -322,7 +296,7 @@
           </span>
 
           
-            <span class="post-category" >
+            <span class="post-category">
             
               <span class="post-meta-divider">|</span>
             
@@ -333,7 +307,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/" itemprop="url" rel="index">
                     <span itemprop="name">学海无涯我游啊游</span>
                   </a>
@@ -344,7 +318,7 @@
                   ， 
                 
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/js/" itemprop="url" rel="index">
                     <span itemprop="name">Javascript</span>
                   </a>
@@ -373,7 +347,9 @@
       </header>
     
 
-
+    
+    
+    
     <div class="post-body" itemprop="articleBody">
 
       
@@ -398,18 +374,15 @@
         
       
     </div>
+    
+    
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
     <footer class="post-footer">
       
@@ -423,6 +396,10 @@
         <div class="post-eof"></div>
       
     </footer>
+  </div>
+  
+  
+  
   </article>
 
 
@@ -435,16 +412,20 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/14/JS/JS - 基础 - 1/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Arron Lai">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
+      <meta itemprop="image" content="/images/avatar.gif">
     </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="赤晨">
     </span>
 
@@ -454,16 +435,8 @@
         
         
           <h2 class="post-title" itemprop="name headline">
-            
-            
-              
                 
-                <a class="post-title-link" href="/2017/02/14/JS/JS - 基础 - 1/" itemprop="url">
-                  [JS] - 基础 - 1
-                </a>
-              
-            
-          </h2>
+                <a class="post-title-link" href="/2017/02/14/JS/JS - 基础 - 1/" itemprop="url">[JS] - 基础 - 1</a></h2>
         
 
         <div class="post-meta">
@@ -486,7 +459,7 @@
           </span>
 
           
-            <span class="post-category" >
+            <span class="post-category">
             
               <span class="post-meta-divider">|</span>
             
@@ -497,7 +470,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/" itemprop="url" rel="index">
                     <span itemprop="name">学海无涯我游啊游</span>
                   </a>
@@ -508,7 +481,7 @@
                   ， 
                 
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/js/" itemprop="url" rel="index">
                     <span itemprop="name">Javascript</span>
                   </a>
@@ -537,7 +510,9 @@
       </header>
     
 
-
+    
+    
+    
     <div class="post-body" itemprop="articleBody">
 
       
@@ -561,18 +536,15 @@
         
       
     </div>
+    
+    
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
     <footer class="post-footer">
       
@@ -586,6 +558,10 @@
         <div class="post-eof"></div>
       
     </footer>
+  </div>
+  
+  
+  
   </article>
 
 
@@ -598,16 +574,20 @@
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/14/面试题笔记/刷题后感 - JS - 2/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Arron Lai">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
+      <meta itemprop="image" content="/images/avatar.gif">
     </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="赤晨">
     </span>
 
@@ -617,16 +597,8 @@
         
         
           <h2 class="post-title" itemprop="name headline">
-            
-            
-              
                 
-                <a class="post-title-link" href="/2017/02/14/面试题笔记/刷题后感 - JS - 2/" itemprop="url">
-                  刷题后感 - JS - 2
-                </a>
-              
-            
-          </h2>
+                <a class="post-title-link" href="/2017/02/14/面试题笔记/刷题后感 - JS - 2/" itemprop="url">刷题后感 - JS - 2</a></h2>
         
 
         <div class="post-meta">
@@ -649,7 +621,7 @@
           </span>
 
           
-            <span class="post-category" >
+            <span class="post-category">
             
               <span class="post-meta-divider">|</span>
             
@@ -660,7 +632,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/" itemprop="url" rel="index">
                     <span itemprop="name">学海无涯我游啊游</span>
                   </a>
@@ -671,7 +643,7 @@
                   ， 
                 
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/js/" itemprop="url" rel="index">
                     <span itemprop="name">Javascript</span>
                   </a>
@@ -700,7 +672,9 @@
       </header>
     
 
-
+    
+    
+    
     <div class="post-body" itemprop="articleBody">
 
       
@@ -723,18 +697,15 @@ $.ajax()发送get/post请求加载远程数据；$(selector).load()加载远程�
         
       
     </div>
+    
+    
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
     <footer class="post-footer">
       
@@ -748,6 +719,10 @@ $.ajax()发送get/post请求加载远程数据；$(selector).load()加载远程�
         <div class="post-eof"></div>
       
     </footer>
+  </div>
+  
+  
+  
   </article>
 
 
@@ -760,16 +735,20 @@ $.ajax()发送get/post请求加载远程数据；$(selector).load()加载远程�
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/13/面试题笔记/刷题后感——js - 1/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Arron Lai">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
+      <meta itemprop="image" content="/images/avatar.gif">
     </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="赤晨">
     </span>
 
@@ -779,16 +758,8 @@ $.ajax()发送get/post请求加载远程数据；$(selector).load()加载远程�
         
         
           <h2 class="post-title" itemprop="name headline">
-            
-            
-              
                 
-                <a class="post-title-link" href="/2017/02/13/面试题笔记/刷题后感——js - 1/" itemprop="url">
-                  刷题后感——js - 1
-                </a>
-              
-            
-          </h2>
+                <a class="post-title-link" href="/2017/02/13/面试题笔记/刷题后感——js - 1/" itemprop="url">刷题后感——js - 1</a></h2>
         
 
         <div class="post-meta">
@@ -811,7 +782,7 @@ $.ajax()发送get/post请求加载远程数据；$(selector).load()加载远程�
           </span>
 
           
-            <span class="post-category" >
+            <span class="post-category">
             
               <span class="post-meta-divider">|</span>
             
@@ -822,7 +793,7 @@ $.ajax()发送get/post请求加载远程数据；$(selector).load()加载远程�
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/" itemprop="url" rel="index">
                     <span itemprop="name">学海无涯我游啊游</span>
                   </a>
@@ -833,7 +804,7 @@ $.ajax()发送get/post请求加载远程数据；$(selector).load()加载远程�
                   ， 
                 
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/js/" itemprop="url" rel="index">
                     <span itemprop="name">Javascript</span>
                   </a>
@@ -862,7 +833,9 @@ $.ajax()发送get/post请求加载远程数据；$(selector).load()加载远程�
       </header>
     
 
-
+    
+    
+    
     <div class="post-body" itemprop="articleBody">
 
       
@@ -889,18 +862,15 @@ css属性写法去掉‘-’改为
         
       
     </div>
+    
+    
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
     <footer class="post-footer">
       
@@ -914,6 +884,10 @@ css属性写法去掉‘-’改为
         <div class="post-eof"></div>
       
     </footer>
+  </div>
+  
+  
+  
   </article>
 
 
@@ -926,16 +900,20 @@ css属性写法去掉‘-’改为
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/13/面试题笔记/css - 1/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Arron Lai">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
+      <meta itemprop="image" content="/images/avatar.gif">
     </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="赤晨">
     </span>
 
@@ -945,16 +923,8 @@ css属性写法去掉‘-’改为
         
         
           <h2 class="post-title" itemprop="name headline">
-            
-            
-              
                 
-                <a class="post-title-link" href="/2017/02/13/面试题笔记/css - 1/" itemprop="url">
-                  刷题后感——HTML/css - 1
-                </a>
-              
-            
-          </h2>
+                <a class="post-title-link" href="/2017/02/13/面试题笔记/css - 1/" itemprop="url">刷题后感——HTML/css - 1</a></h2>
         
 
         <div class="post-meta">
@@ -977,7 +947,7 @@ css属性写法去掉‘-’改为
           </span>
 
           
-            <span class="post-category" >
+            <span class="post-category">
             
               <span class="post-meta-divider">|</span>
             
@@ -988,7 +958,7 @@ css属性写法去掉‘-’改为
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/" itemprop="url" rel="index">
                     <span itemprop="name">学海无涯我游啊游</span>
                   </a>
@@ -999,7 +969,7 @@ css属性写法去掉‘-’改为
                   ， 
                 
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/htmlcss/" itemprop="url" rel="index">
                     <span itemprop="name">HTML/css（HTML5/css3)</span>
                   </a>
@@ -1028,7 +998,9 @@ css属性写法去掉‘-’改为
       </header>
     
 
-
+    
+    
+    
     <div class="post-body" itemprop="articleBody">
 
       
@@ -1051,18 +1023,15 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         
       
     </div>
+    
+    
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
     <footer class="post-footer">
       
@@ -1076,6 +1045,10 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         <div class="post-eof"></div>
       
     </footer>
+  </div>
+  
+  
+  
   </article>
 
 
@@ -1088,318 +1061,20 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/13/只言片语/我想尽力记住的那些开始和结束/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Arron Lai">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="赤晨">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/13/只言片语/我想尽力记住的那些开始和结束/" itemprop="url">
-                  我想尽力记住的那些开始和结束
-                </a>
-              
-            
-          </h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-13T00:35:49+08:00">
-                2017-02-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/lt/" itemprop="url" rel="index">
-                    <span itemprop="name">长叨叨</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          站地铁上发呆的时候思考了一下，其实很多特别琐碎平常的事情，一旦有了次数就会变得意义非凡。比如第一次走路，第十次结婚纪念日。
-当然，第几次这种东西，慢慢我们就忘记了。于是，我们也学会了记下最后那几次。比如和某人的最后一面，程序里的最后一个bug（好吧，这种情况可能并不会发生），谁谁的最后几场演唱会。所
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/02/13/只言片语/我想尽力记住的那些开始和结束/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
   
   
   
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/12/只言片语/关于我爱你和你爱我/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Arron Lai">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="赤晨">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/12/只言片语/关于我爱你和你爱我/" itemprop="url">
-                  关于我爱你和你爱我
-                </a>
-              
-            
-          </h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-12T16:23:58+08:00">
-                2017-02-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/st/" itemprop="url" rel="index">
-                    <span itemprop="name">短逼逼</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          有一个问题是，
-一个所有人都自私的世界和所有人都无私的世界是不是相同的。
-因为其实每个人都有人爱，每个人都被人爱。
-
-          
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/02/12/只言片语/关于我爱你和你爱我/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/12/HTML5CSS/[CSS] - 基础 - 1/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Arron Lai">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
+      <meta itemprop="image" content="/images/avatar.gif">
     </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="赤晨">
     </span>
 
@@ -1409,16 +1084,8 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         
         
           <h2 class="post-title" itemprop="name headline">
-            
-            
-              
                 
-                <a class="post-title-link" href="/2017/02/12/HTML5CSS/[CSS] - 基础 - 1/" itemprop="url">
-                  [CSS] - 基础 - 1
-                </a>
-              
-            
-          </h2>
+                <a class="post-title-link" href="/2017/02/12/HTML5CSS/[CSS] - 基础 - 1/" itemprop="url">[CSS] - 基础 - 1</a></h2>
         
 
         <div class="post-meta">
@@ -1441,7 +1108,7 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
           </span>
 
           
-            <span class="post-category" >
+            <span class="post-category">
             
               <span class="post-meta-divider">|</span>
             
@@ -1452,7 +1119,7 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/" itemprop="url" rel="index">
                     <span itemprop="name">学海无涯我游啊游</span>
                   </a>
@@ -1463,7 +1130,7 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
                   ， 
                 
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/htmlcss/" itemprop="url" rel="index">
                     <span itemprop="name">HTML/css（HTML5/css3)</span>
                   </a>
@@ -1492,7 +1159,9 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
       </header>
     
 
-
+    
+    
+    
     <div class="post-body" itemprop="articleBody">
 
       
@@ -1523,18 +1192,15 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         
       
     </div>
+    
+    
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
     <footer class="post-footer">
       
@@ -1548,6 +1214,10 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         <div class="post-eof"></div>
       
     </footer>
+  </div>
+  
+  
+  
   </article>
 
 
@@ -1560,16 +1230,20 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/12/面试题笔记/刷题后感——递归/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Arron Lai">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
+      <meta itemprop="image" content="/images/avatar.gif">
     </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="赤晨">
     </span>
 
@@ -1579,16 +1253,8 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         
         
           <h2 class="post-title" itemprop="name headline">
-            
-            
-              
                 
-                <a class="post-title-link" href="/2017/02/12/面试题笔记/刷题后感——递归/" itemprop="url">
-                  刷题后感——递归
-                </a>
-              
-            
-          </h2>
+                <a class="post-title-link" href="/2017/02/12/面试题笔记/刷题后感——递归/" itemprop="url">刷题后感——递归</a></h2>
         
 
         <div class="post-meta">
@@ -1611,7 +1277,7 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
           </span>
 
           
-            <span class="post-category" >
+            <span class="post-category">
             
               <span class="post-meta-divider">|</span>
             
@@ -1622,7 +1288,7 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/" itemprop="url" rel="index">
                     <span itemprop="name">学海无涯我游啊游</span>
                   </a>
@@ -1633,7 +1299,7 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
                   ， 
                 
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/tech/interview/" itemprop="url" rel="index">
                     <span itemprop="name">去特么的面试题</span>
                   </a>
@@ -1662,7 +1328,9 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
       </header>
     
 
-
+    
+    
+    
     <div class="post-body" itemprop="articleBody">
 
       
@@ -1686,18 +1354,15 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         
       
     </div>
+    
+    
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
     <footer class="post-footer">
       
@@ -1711,6 +1376,10 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         <div class="post-eof"></div>
       
     </footer>
+  </div>
+  
+  
+  
   </article>
 
 
@@ -1723,16 +1392,20 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
   
   
 
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/11/只言片语/贪心/">
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/11/HTML5CSS/HTML - 基础 - 1/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Arron Lai">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.jpeg">
+      <meta itemprop="image" content="/images/avatar.gif">
     </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="赤晨">
     </span>
 
@@ -1742,16 +1415,8 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         
         
           <h2 class="post-title" itemprop="name headline">
-            
-            
-              
                 
-                <a class="post-title-link" href="/2017/02/11/只言片语/贪心/" itemprop="url">
-                  贪心
-                </a>
-              
-            
-          </h2>
+                <a class="post-title-link" href="/2017/02/11/HTML5CSS/HTML - 基础 - 1/" itemprop="url">[HTML] - 基础 - 1</a></h2>
         
 
         <div class="post-meta">
@@ -1763,7 +1428,7 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-11T23:16:43+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-11T23:01:16+08:00">
                 2017-02-11
               </time>
             
@@ -1774,7 +1439,7 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
           </span>
 
           
-            <span class="post-category" >
+            <span class="post-category">
             
               <span class="post-meta-divider">|</span>
             
@@ -1785,7 +1450,174 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">学海无涯我游啊游</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/htmlcss/" itemprop="url" rel="index">
+                    <span itemprop="name">HTML/css（HTML5/css3)</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          1 基本结构：
+&lt;!DOCTYPE HTML&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;/head&gt;
+&lt;body&gt;&lt;/body&gt;
+&lt;/html&gt;
+2 head:
+&lt;head&gt;
+&lt;title&gt;&lt;/ti
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/02/11/HTML5CSS/HTML - 基础 - 1/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/11/只言片语/关于他们所说的必然/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Arron Lai">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="赤晨">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/02/11/只言片语/关于他们所说的必然/" itemprop="url">关于他们所说的必然</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-11T09:51:22+08:00">
+                2017-02-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
                   <a href="/categories/st/" itemprop="url" rel="index">
                     <span itemprop="name">短逼逼</span>
                   </a>
@@ -1814,7 +1646,9 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
       </header>
     
 
-
+    
+    
+    
     <div class="post-body" itemprop="articleBody">
 
       
@@ -1823,18 +1657,18 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
       
         
           
-          发现了两个人小小的贪心，
-说想要某人出人头地，又希望他不必奔波劳碌。
-大概的愿望是某人能不费太大力气实现他那些要费很多力气的事情，
-差不多是希望他以后可以不劳而获且健康快乐。
-啧，真的是很贪心呀。
-&nbsp;
-——父母心
+          所有预言不过是一次对被预测者的攻心。
+不管你信与不信，愿不愿意，你的意识、潜意识都藏起了这个预言的影子，
+像是一粒极不起眼的种子，捕风捉影，茁壮成长。
+未来某一天，它就长出一棵树，它就变成一片海，
+让你看着这山川河流，浩瀚宇宙而敬畏，而臣服。
+然后，你会听见人们铿锵的低语
+看啊，果不其然。
 
           
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/02/11/只言片语/贪心/#more" rel="contents">
+            <a class="btn" href="/2017/02/11/只言片语/关于他们所说的必然/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1842,18 +1676,15 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         
       
     </div>
+    
+    
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
-    <div>
-      
-    </div>
+    
 
     <footer class="post-footer">
       
@@ -1867,6 +1698,10 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         <div class="post-eof"></div>
       
     </footer>
+  </div>
+  
+  
+  
   </article>
 
 
@@ -1875,7 +1710,7 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
   </nav>
 
 
@@ -1899,70 +1734,69 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
   </div>
 
   <aside id="sidebar" class="sidebar">
+    
     <div class="sidebar-inner">
 
       
 
       
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="/uploads/avatar.jpeg"
-               alt="Arron Lai" />
-          <p class="site-author-name" itemprop="name">Arron Lai</p>
-           
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Arron Lai</p>
               <p class="site-description motion-element" itemprop="description"></p>
-           
-        </div>
-        <nav class="site-state motion-element">
-
-          
-            <div class="site-state-item site-state-posts">
-              <a href="/archives">
-                <span class="site-state-item-count">24</span>
-                <span class="site-state-item-name">日志</span>
-              </a>
-            </div>
-          
-
-          
-            
-            
-            <div class="site-state-item site-state-categories">
-              <a href="/categories/index.html">
-                <span class="site-state-item-count">8</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
-
-          
-
-        </nav>
-
-        
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
-              <i class="fa fa-rss"></i>
-              RSS
-            </a>
           </div>
-        
 
-        <div class="links-of-author motion-element">
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
           
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
         </div>
-
-        
-        
-
-        
-        
-
-        
-
-
       </section>
 
       
@@ -1979,27 +1813,27 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy; 
-  <span itemprop="copyrightYear">2017</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
-    <i class="fa fa-heart"></i>
+    <i class="fa fa-user"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Arron Lai</span>
+
+  
 </div>
 
 
-<div class="powered-by">
-  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
 
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Muse
-  </a>
-</div>
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
 
 
         
@@ -2024,6 +1858,12 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
 </div>
 
 
+
+
+
+
+
+
         
       </div>
     </footer>
@@ -2033,6 +1873,8 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
         <i class="fa fa-arrow-up"></i>
         
       </div>
+    
+
     
 
   </div>
@@ -2058,48 +1900,67 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
 
 
 
-  
-  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
 
 
-  
 
 
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
 
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
 
 
 
   
   
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
 
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
   
 
   
 
+  
 
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
 
 
 
   
-
 
 
   
@@ -2125,19 +1986,26 @@ background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动
 
 
 
+
+
+
+
+
+
+
   
 
 
 
 
 
+  
 
   
 
+  
 
-
-
-
+  
   
 
   

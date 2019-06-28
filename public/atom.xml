@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>赤晨</title>
+  
   <subtitle>上帝没有给我们想要的，他给我们更好的。</subtitle>
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-03-22T05:20:21.000Z</updated>
+  <updated>2019-06-28T06:17:53.867Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -16,85 +17,50 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>最长回文子串</title>
-    <link href="http://yoursite.com/2017/03/22/%E7%AE%97%E6%B3%95/%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2/"/>
-    <id>http://yoursite.com/2017/03/22/算法/最长回文子串/</id>
-    <published>2017-03-22T03:05:48.000Z</published>
-    <updated>2017-03-22T05:20:21.000Z</updated>
+    <title>（回顾）性能调优实践 gzip, brotli, https, angular</title>
+    <link href="http://yoursite.com/2019/06/28/%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E5%AE%9E%E8%B7%B5/"/>
+    <id>http://yoursite.com/2019/06/28/性能调优实践/</id>
+    <published>2019-06-28T06:17:53.000Z</published>
+    <updated>2019-06-28T06:17:53.867Z</updated>
     
-    <content type="html"><![CDATA[<p>1.0 快乐的n<sup>3</sup>算法</p>
-<pre>
-var longestPalindrome = function(s) {
-    var max = 0;
-    var start = 0;
-    for(var i = 0; i < s.length; ++i) {
-        for(var j = i; j < s.length; ++j) {
-            if(isPalindrome(s, i, j))  {
-                if((j-i+1) >= max){
-                    max = (j-i+1);
-                    start = i;
-                }
-            }
-        }
-    }
-    return s.substr(start, max);
-};
-
-var isPalindrome = function(s, start, end) {
-    for(var i = start; i < end; ++i) {
-        if(s[i] != s[end-i+start]){
-            return false;
-        }
-    }
-    return true;
-};
-</pre>
-
-<p>枚举所有子字符串n<sup>2</sup>，因为不是子序列问题，所以不是n!。</p>
-<p>2.0 n<sup>2</sup></p>
-<pre>
-var longestPalindrome = function(s) {
-    var maxl = 0;
-    var start = -1;
-    for(var i = 0; i < s.length; ++i) {
-        var j = 0;
-        for(; (i-j>=0) && (i+j < s.length); ++j) {
-            if(s[i-j] != s[i+j]){
-                break;
-            }
-        }
-        j -= 1;
-        if(maxl < 2*j+1) {
-            maxl = 2*j+1;
-            start = i-j;
-        }
-        var k = 0;
-        for(; i-k >= 0 && i+k+1 < s.length; ++k) {
-            if(s[i-k] != s[i+k+1]){
-                break;
-            }
-        }
-        k -= 1;
-        if(maxl < 2*k+2) {
-            maxl = 2*k+2;
-            start = i-k;
-        }
-    }
-    return s.substr(start, maxl);
-};
-</pre>
-
-<p>遍历一次所有元素，以它为中心向左右扫描找到当前数字为中心的最长字符串。需要考虑字符串为奇数或偶数的情况。</p>
-]]></content>
+    <content type="html"><![CDATA[<p>前端性能优化</p><p>标题可能起的有点大，这次是实践是对目前在做的项目的一次性能调优，但是也没有尝试所有方式。</p><p>起因是我们的网站被客户吐槽慢。。。</p><p>然后开始了性能调优。</p><h1 id="gzip实践"><a href="#gzip实践" class="headerlink" title="gzip实践"></a>gzip实践</h1><p>服务器端的优化是首先想到的方法，因为这个优化的力度是前端code层面优化比不了的。项目是Angular6的，打包之后用–stats-json和webpack-bundle-analyzer可以看到目前打包之后各个js的大小以及gzip压缩之后的大小，gzip压一压，最少能小一半，有些能压到十分之一。<br>gzip的原理是在服务器进行配置，对制定类型的文件采用gzip压缩，客户端在获得传输的数据之后再进行解压。通过这个方式可以减少文件传输的时间，但是会增加压缩和解压的时间，所以对于一些很小的文件是不建议启用gzip的（服务器配置的时候也可以设置文件大小）。<br>配置大概是</p><p><code>LoadModule deflate_module modules/mod_deflate.soAddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript</code></p><p>在httpd.conf开启mod_deflate，然后选一下文件类型。</p><p>本地build了一个docker测试 =&gt; 快得一批！</p><p>部署到服务器打开网站 =&gt; <strong>没得卵用</strong>！又改了几次配置，部署到服务器上都是一样。</p><p>开始怀疑gzip，开始怀疑服务器，开始怀疑自己。</p><ul><li>问题：本地测试gzip生效，但服务器上相同配置gzip后不生效。</li><li>思路：服务器的机器和本地机器肯定有不同，但是两边最终都是build出来docker image，image内的环境配置和安装的软件都是一样的，搜了“gzip不生效”找到的基本是怎么配置gzip -&gt; 两边不同的还有协议，服务器端proxy设置了强制ssl，所有访问都是https本地是<a href="http://localhost，搜“gzip" target="_blank" rel="noopener">http://localhost，搜“gzip</a> https 不生效”找到答案：因为有BREACH（大致是ssl会对文件加密，以保护文件内容不被他人获取和篡改）但是如果引入gzip，hackers可以通过victim的机器发送大量明文请求和压缩算法(gzip 压缩在 HTTP 中的工作方式是这样：如果在响应中有同一个字符串的多个实例，第一个实例将被保留，而其余实例将被替换成指向第一个实例位置的短引用，以减少响应消息的体积)来破解文件内容。=&gt; SSL和gzip不能同时使用（搜索时候找到了一个关于apache的SSLCompression的配置，进行了尝试，无果）</li></ul><h1 id="Brotli实践"><a href="#Brotli实践" class="headerlink" title="Brotli实践"></a>Brotli实践</h1><ul><li>问题：SSL和gzip不能同时使用，对于我们现有site SSL不能disable =&gt; 无法实现服务器端优化？</li><li>思路：(看看别人是怎么做的）-&gt; bootstrap，load很快，它也是https，接着看了network，<img title="bootstrap_brotli" alt="bootstrap_brotli" src="http://on3eu0vfd.bkt.clouddn.com/static/images/performance190627/performance-bootstrap-brotli.png"></li></ul>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;1.0 快乐的n&lt;sup&gt;3&lt;/sup&gt;算法&lt;/p&gt;
+      
+      
+        &lt;p&gt;前端性能优化&lt;/p&gt;
+&lt;p&gt;标题可能起的有点大，这次是实践是对目前在做的项目的一次性能调优，但是也没有尝试所有方式。&lt;/p&gt;
+&lt;p&gt;起因是我们的网站被客户吐槽慢。。。&lt;/p&gt;
+&lt;p&gt;然后开始了性能调优。&lt;/p&gt;
+&lt;h1 id=&quot;gzip实践&quot;&gt;&lt;a href=&quot;#gzip实
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>最长回文子串</title>
+    <link href="http://yoursite.com/2018/11/27/%E7%AE%97%E6%B3%95/%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2/"/>
+    <id>http://yoursite.com/2018/11/27/算法/最长回文子串/</id>
+    <published>2018-11-27T02:45:08.994Z</published>
+    <updated>2018-11-27T02:45:08.995Z</updated>
+    
+    <content type="html"><![CDATA[<p>1.0 快乐的n<sup>3</sup>算法</p><pre>var longestPalindrome = function(s) {    var max = 0;    var start = 0;    for(var i = 0; i < s.length; ++i) {        for(var j = i; j < s.length; ++j) {            if(isPalindrome(s, i, j))  {                if((j-i+1) >= max){                    max = (j-i+1);                    start = i;                }            }        }    }    return s.substr(start, max);};var isPalindrome = function(s, start, end) {    for(var i = start; i < end; ++i) {        if(s[i] != s[end-i+start]){            return false;        }    }    return true;};</pre><p>枚举所有子字符串n<sup>2</sup>，因为不是子序列问题，所以不是n!。</p><p>2.0 n<sup>2</sup></p><pre>var longestPalindrome = function(s) {    var maxl = 0;    var start = -1;    for(var i = 0; i < s.length; ++i) {        var j = 0;        for(; (i-j>=0) && (i+j < s.length); ++j) {            if(s[i-j] != s[i+j]){                break;            }        }        j -= 1;        if(maxl < 2*j+1) {            maxl = 2*j+1;            start = i-j;        }        var k = 0;        for(; i-k >= 0 && i+k+1 < s.length; ++k) {            if(s[i-k] != s[i+k+1]){                break;            }        }        k -= 1;        if(maxl < 2*k+2) {            maxl = 2*k+2;            start = i-k;        }    }    return s.substr(start, maxl);};</pre><p>遍历一次所有元素，以它为中心向左右扫描找到当前数字为中心的最长字符串。需要考虑字符串为奇数或偶数的情况。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;1.0 快乐的n&lt;sup&gt;3&lt;/sup&gt;算法&lt;/p&gt;
 &lt;pre&gt;
 var longestPalindrome = function(s) {
     var max = 0;
     var start = 0;
     for(var i = 0; i &lt; s.lengt
+      
     
     </summary>
     
@@ -106,77 +72,23 @@ var longestPalindrome = function(s) {
   </entry>
   
   <entry>
-    <title>你说的对</title>
-    <link href="http://yoursite.com/2017/03/20/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E4%BD%A0%E8%AF%B4%E7%9A%84%E5%AF%B9/"/>
-    <id>http://yoursite.com/2017/03/20/只言片语/你说的对/</id>
-    <published>2017-03-20T11:07:05.000Z</published>
-    <updated>2017-03-22T06:41:48.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>一些话听起来就像是一个拿捏不好分寸的医生在给你动手术，麻醉的劲儿过了他还在切割缝补。<br><br>你知道他的一举一动都是为了你好，但看着自己淌血，感受着皮肉被针线拉扯都太难熬了。<br><br>对了，还有那些一点一点慢慢苏醒的活生生的痛。<br><br>——你说的都对，但你能不能别说了。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;一些话听起来就像是一个拿捏不好分寸的医生在给你动手术，麻醉的劲儿过了他还在切割缝补。&lt;br&gt;&lt;br&gt;你知道他的一举一动都是为了你好，但看着自己淌血，感受着皮肉被针线拉扯都太难熬了。&lt;br&gt;&lt;br&gt;对了，还有那些一点一点慢慢苏醒的活生生的痛。&lt;br&gt;&lt;br&gt;——你说的都对，但
-    
-    </summary>
-    
-      <category term="短逼逼" scheme="http://yoursite.com/categories/st/"/>
-    
-      <category term="我只是打个比方" scheme="http://yoursite.com/categories/st/eg/"/>
-    
-    
-  </entry>
-  
-  <entry>
     <title>js - 基础编程练习</title>
-    <link href="http://yoursite.com/2017/03/11/JS/JS%20-%20%E5%9F%BA%E7%A1%80%20-%203/"/>
-    <id>http://yoursite.com/2017/03/11/JS/JS - 基础 - 3/</id>
-    <published>2017-03-11T14:20:33.000Z</published>
-    <updated>2017-03-13T14:31:35.000Z</updated>
+    <link href="http://yoursite.com/2018/11/27/JS/JS%20-%20%E5%9F%BA%E7%A1%80%20-%203/"/>
+    <id>http://yoursite.com/2018/11/27/JS/JS - 基础 - 3/</id>
+    <published>2018-11-27T02:45:08.992Z</published>
+    <updated>2018-11-27T02:45:08.992Z</updated>
     
-    <content type="html"><![CDATA[<p>题目描述</p>
-<p>实现函数 makeClosures，调用之后满足如下条件：</p>
-<p>1、返回一个函数数组 result，长度与 arr 相同</p>
-<p>2、运行 result 中第 i 个函数，即 result<a href="">i</a>，结果与 fn(arr[i]) 相同</p>
-<p>输入例子:</p>
-<pre>
-  var arr = [1, 2, 3];
-  var square = function (x) {
-      return x * x;
-  };
-  var funcs = makeClosures(arr, square);
-  funcs[1]();
-</pre>
-
-<p>输出例子:<br>4</p>
-<p>answer:</p>
-<pre>
-function makeClosures(arr, fn) {
-     var funs = [];
-     for(var i = 0; i < arr.length; ++i) {
-        (function(num){
-            var temp = function() {
-                return fn(num);
-
-            }
-            funs.push(temp);
-        })(arr[i]);
-    }
-    return funs;
-}
-</pre>
-
-<p>why use anonymous function here?</p>
-<p>curry,<br>toString<br>parseInt<br>for in loop</p>
-]]></content>
+    <content type="html"><![CDATA[<p>题目描述</p><p>实现函数 makeClosures，调用之后满足如下条件：</p><p>1、返回一个函数数组 result，长度与 arr 相同</p><p>2、运行 result 中第 i 个函数，即 result<a href="">i</a>，结果与 fn(arr[i]) 相同</p><p>输入例子:</p><pre>  var arr = [1, 2, 3];  var square = function (x) {      return x * x;  };  var funcs = makeClosures(arr, square);  funcs[1]();</pre><p>输出例子:<br>4</p><p>answer:</p><pre>function makeClosures(arr, fn) {     var funs = [];     for(var i = 0; i < arr.length; ++i) {        (function(num){            var temp = function() {                return fn(num);            }            funs.push(temp);        })(arr[i]);    }    return funs;}</pre><p>why use anonymous function here?</p><p>curry,<br>toString<br>parseInt<br>for in loop</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;题目描述&lt;/p&gt;
+      
+      
+        &lt;p&gt;题目描述&lt;/p&gt;
 &lt;p&gt;实现函数 makeClosures，调用之后满足如下条件：&lt;/p&gt;
 &lt;p&gt;1、返回一个函数数组 result，长度与 arr 相同&lt;/p&gt;
 &lt;p&gt;2、运行 result 中第 i 个函数，即 result&lt;a href=&quot;&quot;&gt;i&lt;/a&gt;，结果与 fn
+      
     
     </summary>
     
@@ -192,26 +104,19 @@ function makeClosures(arr, fn) {
     <link href="http://yoursite.com/2017/03/02/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E5%8F%AF%E6%80%9C%E5%A4%9C%E5%8D%8A%E8%99%9A%E5%89%8D%E5%B8%AD/"/>
     <id>http://yoursite.com/2017/03/02/只言片语/可怜夜半虚前席/</id>
     <published>2017-03-01T23:53:29.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
+    <updated>2018-11-27T02:45:08.993Z</updated>
     
-    <content type="html"><![CDATA[<p>“你来看我了。”</p>
-<p>“你一直都在这里啊？”</p>
-<p>问完这句我便醒了，屋里还没有光线透进来，应该不到六点。心里想着再睡会，脑子里翻腾的都是刚才的梦。</p>
-<p>昨天室友谈起了她最近看的一个灵异类的综艺节目，大家就聊了一下各地的一些习俗和自己觉得奇怪的事情。有些地方亲人死了不能哭，你舍不得他/她就不能往生了。如果你梦到亲人和你说最近过得不好，那你要烧一点东西过去。还有七月半是鬼节，家里会接亡人回来，鬼门关再送他们回去。</p>
-<p>我不是彻底的有神或者无神论者，但是抱着惯有的怀疑态度，我不太相信室友说的那个节目里面看到的事情。我总觉得里面每一个桥段只要节目组和参与者串通好，完全可以拍出来，甚至这可能根本就是节目组请来一堆演员拍的节目。室友又告诉我，里面的那些灵媒是很有名的灵媒，都是在当地有真人真事佐证的。</p>
-<p>关于灵媒，我记得我看过一篇文章，讲的是一个年轻的灵媒师，如何帮那些想念亡者的生者。大概是他自己是一个媒介，可以让亡者借由他回来，于是生和死就暂时相互妥协。后来这个灵媒被打了，因为他为一个黑帮招回来的人不是那个人。最后，他说，其实自己并没有作媒介的能力，只不过每次从亡者的资料和社交网站查到一些这个人生前的事情，然后用这一星半点的了解和现场那些亲人、朋友的反应来糊弄。偶尔碰到不好糊弄的就容易穿帮。所以，其实又是一场攻心。文末我记得是一句诗，“可怜夜半虚前席，不问苍生问鬼神。”</p>
-<p>可能你们真的不存在吧，只是我思念成疾。是我的意识编织了我的梦，我的怀念造成了你的存在，其实是我而不是你。是我的那一点不甘心，不甘心这样的结局，不甘心那些没有弥补的过错，不甘心我再也想不起来最后和你说的话是什么。所以我夜不能寐，我梦到你，我感受到你。我说了这日日夜夜堵在我心里的话，我做了来不及做的事，我看见我想看见的。然后，我心满意足。于是，我深信不疑——你，回来看我了。</p>
-<p>可能你们真的存在，就在我身后，我手边。注视着我，还深爱着我。我解释不清逻辑，说不出为什么你们还在而没有离去。但可能现在你正握着我的手，也不怕我。虽然在你眼中也不知道我是怎样的存在。</p>
-<p>“如果我死了之后，你在街上看到我，你会吓得跑开还是紧紧抱住我？”</p>
-<p>“嗯，主要看脸。” : )</p>
-]]></content>
+    <content type="html"><![CDATA[<p>“你来看我了。”</p><p>“你一直都在这里啊？”</p><p>问完这句我便醒了，屋里还没有光线透进来，应该不到六点。心里想着再睡会，脑子里翻腾的都是刚才的梦。</p><p>昨天室友谈起了她最近看的一个灵异类的综艺节目，大家就聊了一下各地的一些习俗和自己觉得奇怪的事情。有些地方亲人死了不能哭，你舍不得他/她就不能往生了。如果你梦到亲人和你说最近过得不好，那你要烧一点东西过去。还有七月半是鬼节，家里会接亡人回来，鬼门关再送他们回去。</p><p>我不是彻底的有神或者无神论者，但是抱着惯有的怀疑态度，我不太相信室友说的那个节目里面看到的事情。我总觉得里面每一个桥段只要节目组和参与者串通好，完全可以拍出来，甚至这可能根本就是节目组请来一堆演员拍的节目。室友又告诉我，里面的那些灵媒是很有名的灵媒，都是在当地有真人真事佐证的。</p><p>关于灵媒，我记得我看过一篇文章，讲的是一个年轻的灵媒师，如何帮那些想念亡者的生者。大概是他自己是一个媒介，可以让亡者借由他回来，于是生和死就暂时相互妥协。后来这个灵媒被打了，因为他为一个黑帮招回来的人不是那个人。最后，他说，其实自己并没有作媒介的能力，只不过每次从亡者的资料和社交网站查到一些这个人生前的事情，然后用这一星半点的了解和现场那些亲人、朋友的反应来糊弄。偶尔碰到不好糊弄的就容易穿帮。所以，其实又是一场攻心。文末我记得是一句诗，“可怜夜半虚前席，不问苍生问鬼神。”</p><p>可能你们真的不存在吧，只是我思念成疾。是我的意识编织了我的梦，我的怀念造成了你的存在，其实是我而不是你。是我的那一点不甘心，不甘心这样的结局，不甘心那些没有弥补的过错，不甘心我再也想不起来最后和你说的话是什么。所以我夜不能寐，我梦到你，我感受到你。我说了这日日夜夜堵在我心里的话，我做了来不及做的事，我看见我想看见的。然后，我心满意足。于是，我深信不疑——你，回来看我了。</p><p>可能你们真的存在，就在我身后，我手边。注视着我，还深爱着我。我解释不清逻辑，说不出为什么你们还在而没有离去。但可能现在你正握着我的手，也不怕我。虽然在你眼中也不知道我是怎样的存在。</p><p>“如果我死了之后，你在街上看到我，你会吓得跑开还是紧紧抱住我？”</p><p>“嗯，主要看脸。” : )</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;“你来看我了。”&lt;/p&gt;
+      
+      
+        &lt;p&gt;“你来看我了。”&lt;/p&gt;
 &lt;p&gt;“你一直都在这里啊？”&lt;/p&gt;
 &lt;p&gt;问完这句我便醒了，屋里还没有光线透进来，应该不到六点。心里想着再睡会，脑子里翻腾的都是刚才的梦。&lt;/p&gt;
 &lt;p&gt;昨天室友谈起了她最近看的一个灵异类的综艺节目，大家就聊了一下各地的一些习俗和自己觉得奇怪的事
+      
     
     </summary>
     
@@ -225,222 +130,18 @@ function makeClosures(arr, fn) {
     <link href="http://yoursite.com/2017/02/25/%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F/"/>
     <id>http://yoursite.com/2017/02/25/算法/排序/</id>
     <published>2017-02-25T11:35:25.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
+    <updated>2018-11-27T02:45:08.994Z</updated>
     
-    <content type="html"><![CDATA[<p>js实现了一下几种基于比较的排序（常数时间的排序还没看！阿西吧！）</p>
-<p>插排和冒泡平均时间复杂度o(n^2)，最优o(n)，前两种稳定。选择都是n^2不稳定。</p>
-<p>提一下冒泡，一直以为它最坏最好都是n^2复杂度，不过写的时候发现每次冒泡可以检查本次是否交换过元素，如果没有直接退出，最优情况排好序的数组，一趟遍历退出。</p>
-<p>通常小数据量选择和插排比较快。基本排好序，小数据量用插排.</p>
-<p>1. 直接插入</p>
-<pre>function insertSort(arr) {
-    console.time("insert sort: ");
-    for (var i = 0; i &lt; arr.length; i++) {
-      var j = i;
-      var value = arr[i];
-      while(j&gt;0 &amp;&amp; value &lt; arr[j-1]) {
-        arr[j] = arr[j-1];
-        j--;
-      }
-      arr[j] = value;
-    }
-    console.timeEnd("insert sort: ");
-    return arr;
-  }</pre>
-
-
-<p>&nbsp;</p>
-<p>2. 冒泡</p>
-<pre>function bubbleSort(arr) {
-    console.time("bubble sort: ");
-    for(var i = 0; i &lt; arr.length; ++i){  //n次遍历
-      var change = false;
-      for(var j = arr.length-1; j &gt; i; --j) { //从最后冒泡至i，一次冒泡i最小
-        if(arr[j] &lt; arr[j-1]) {
-          var temp = arr[j-1]
-          arr[j-1] = arr[j];
-          arr[j] = temp;
-          change = true;
-        }
-      }
-      if(!change) {
-        console.timeEnd("bubble sort: "); //0.074
-        return arr;
-      }
-    }
-    console.timeEnd("bubble sort: "); //0.095
-    return arr;
-  }</pre>
-
-
-<p>&nbsp;</p>
-<p>3. 选择</p>
-<pre>function selectSort(arr) {
-    console.time("select sort: ");
-    for(var i = 0; i &lt; arr.length-1; ++i) {
-      var min = i;
-      for(var j = i; j &lt; arr.length; ++j) {
-        if(arr[j] &lt; arr[min]) {
-          min = j;
-        }
-      }
-      var temp = arr[min];
-      arr[min] = arr[i];
-      arr[i] = temp;
-    }
-    console.timeEnd("select sort: ");
-    return arr;
-  }</pre>
-
-
-<p>4. 快排</p>
-<p>然后是快排，平均o(nlogn)，最差o(n^2)在原数据正序或逆序时。快排复杂度能到nlogn主要是每次选取pivot可以把元素划分为两段更小元素处理从而实现divide-conquer的目的，但是如果数据正序或逆序，每次划分后子问题规模是n-1就退化成了n^2复杂度。不稳定。</p>
-<pre>function qS(arr) {
-    var partition = function(a, l, h) {
-      var p = l;
-      l++;
-      while(l&lt;h) {
-        while(l&lt;h &amp;&amp; a[h] &gt; a[p]) {
-          h--;
-        }
-        while(l&lt;h &amp;&amp; a[l] &lt;= a[p]) {
-          l++;
-        }
-        if(l &lt; h) {
-          var temp = a[l];
-          a[l] = a[h];
-          a[h] = temp;
-          // h--;
-          // l++; //交换之后继续从当前位置扫
-        }
-      }
-      // console.log(h);
-      // console.log(l);
-      var temp = a[p];
-      a[p] = a[h];
-      a[h] = temp;
-      // console.log(a);
-      return h;
-    }
-
-    var sort = function(a, l, h) {
-      if(l&lt;h) {
-        var pivot = partition(a, l, h);
-        // console.log(pivot);
-        sort(a, l, pivot-1);
-        sort(a, pivot+1, h);
-      }
-    }
-
-    return {sa:arr, sort:sort}
-  }</pre>
-
-
-<p>5. 堆排序</p>
-<p>利用大顶堆或小顶堆性质排序，复杂度最优平均都是o(nlogn)，不稳定。核心是构建大顶堆，和每次取元素之后对堆的maxheapify——递归的方法调整堆，使得其满足根大于子节点的特性，注意停止条件。</p>
-<p>[codesyntax lang=”php”]</p>
-<pre>function heapSort(arr) {
-    function maxHeapify(arr, index, size) {
-      var max = index;
-      var left = 2*index+1;
-      var right = 2*index+2
-      if(left &lt; size &amp;&amp; arr[left] &gt; arr[max]) {
-        max = left;
-      }
-      if(right &lt; size &amp;&amp; arr[right] &gt; arr[max]) {
-        max = right;
-      }
-      if(index != max){
-        swap(arr, index, max);
-        maxHeapify(arr, max, size);
-      }
-    }
-
-    function buildHeap(arr) {
-      for(var i = Math.floor((arr.length-1)/2); i &gt;= 0; --i) {
-        maxHeapify(arr, i, arr.length);
-      }
-    }
-
-    function sort(arr) {
-      buildHeap(arr);
-      for(var i = 0; i &lt; arr.length; ++i) {
-        swap(arr, 0, arr.length-i-1);
-        //console.log(arr);
-        maxHeapify(arr, 0, arr.length-i-1);
-      }
-      return arr;
-    }
-
-    function swap(arr, a, b) {
-      var temp = arr[a];
-      arr[a] = arr[b];
-      arr[b] = temp;
-    }
-
-    return{arr:arr, sort:sort};
-
-  }</pre>
-
-
-<p>6. 希尔排序</p>
-<p>基于插排的改进，通过调整步长减少元素移动的次数（插排中相当于每次只能移动1位，如果调整2341中1的位置就需要比较3次移动3次）o(nlogn)</p>
-<pre>function shellSort(arr) {
-    var gap = 1;
-    while(gap &lt; arr.length) {
-      gap = gap*3 + 1;
-    }
-
-    for(; gap &gt; 0; gap=Math.floor(gap/3)) {
-      for(var j = gap; j &lt; arr.length; ++j) {
-        var value = arr[j]
-        while(j&gt;=0 &amp;&amp; arr[j-gap] &gt; value) {
-          arr[j] = arr[j-gap];
-          j = j-gap;
-        }
-        arr[j] = value;
-        var value = arr[j];
-
-      }
-    }
-
-    return arr;
-  }</pre>
-
-
-<p>7. 归并排序</p>
-<p>典型分治思想，复杂度o(nlogn)，递归，空间需求大。（外排）</p>
-<pre>function mergeSort(arr) {
-    if(arr.length == 1) {
-      return arr;
-    }else {
-      var m = Math.floor(arr.length/2);
-      return merge(mergeSort(arr.slice(0,m)), mergeSort(arr.slice(m,arr.lenth)));
-    }
-  }
-
-  function merge(arr1, arr2) {
-    var i = 0;
-    var j = 0;
-    var result = [];
-    while(i + j &lt; arr1.length + arr2.length) {
-      if(arr1[i] &lt;= arr2[j] || j == arr2.length) {
-        result[i+j] = arr1[i];
-        i++;
-      }else if(i &lt; arr1.length || i == arr1.length){
-        result[i+j] = arr2[j];
-        j++;
-      }
-    }
-    return result;
-  }</pre>
-
-]]></content>
+    <content type="html"><![CDATA[<p>js实现了一下几种基于比较的排序（常数时间的排序还没看！阿西吧！）</p><p>插排和冒泡平均时间复杂度o(n^2)，最优o(n)，前两种稳定。选择都是n^2不稳定。</p><p>提一下冒泡，一直以为它最坏最好都是n^2复杂度，不过写的时候发现每次冒泡可以检查本次是否交换过元素，如果没有直接退出，最优情况排好序的数组，一趟遍历退出。</p><p>通常小数据量选择和插排比较快。基本排好序，小数据量用插排.</p><p>1. 直接插入</p><pre>function insertSort(arr) {    console.time("insert sort: ");    for (var i = 0; i &lt; arr.length; i++) {      var j = i;      var value = arr[i];      while(j&gt;0 &amp;&amp; value &lt; arr[j-1]) {        arr[j] = arr[j-1];        j--;      }      arr[j] = value;    }    console.timeEnd("insert sort: ");    return arr;  }</pre><p>&nbsp;</p><p>2. 冒泡</p><pre>function bubbleSort(arr) {    console.time("bubble sort: ");    for(var i = 0; i &lt; arr.length; ++i){  //n次遍历      var change = false;      for(var j = arr.length-1; j &gt; i; --j) { //从最后冒泡至i，一次冒泡i最小        if(arr[j] &lt; arr[j-1]) {          var temp = arr[j-1]          arr[j-1] = arr[j];          arr[j] = temp;          change = true;        }      }      if(!change) {        console.timeEnd("bubble sort: "); //0.074        return arr;      }    }    console.timeEnd("bubble sort: "); //0.095    return arr;  }</pre><p>&nbsp;</p><p>3. 选择</p><pre>function selectSort(arr) {    console.time("select sort: ");    for(var i = 0; i &lt; arr.length-1; ++i) {      var min = i;      for(var j = i; j &lt; arr.length; ++j) {        if(arr[j] &lt; arr[min]) {          min = j;        }      }      var temp = arr[min];      arr[min] = arr[i];      arr[i] = temp;    }    console.timeEnd("select sort: ");    return arr;  }</pre><p>4. 快排</p><p>然后是快排，平均o(nlogn)，最差o(n^2)在原数据正序或逆序时。快排复杂度能到nlogn主要是每次选取pivot可以把元素划分为两段更小元素处理从而实现divide-conquer的目的，但是如果数据正序或逆序，每次划分后子问题规模是n-1就退化成了n^2复杂度。不稳定。</p><pre>function qS(arr) {    var partition = function(a, l, h) {      var p = l;      l++;      while(l&lt;h) {        while(l&lt;h &amp;&amp; a[h] &gt; a[p]) {          h--;        }        while(l&lt;h &amp;&amp; a[l] &lt;= a[p]) {          l++;        }        if(l &lt; h) {          var temp = a[l];          a[l] = a[h];          a[h] = temp;          // h--;          // l++; //交换之后继续从当前位置扫        }      }      // console.log(h);      // console.log(l);      var temp = a[p];      a[p] = a[h];      a[h] = temp;      // console.log(a);      return h;    }    var sort = function(a, l, h) {      if(l&lt;h) {        var pivot = partition(a, l, h);        // console.log(pivot);        sort(a, l, pivot-1);        sort(a, pivot+1, h);      }    }    return {sa:arr, sort:sort}  }</pre><p>5. 堆排序</p><p>利用大顶堆或小顶堆性质排序，复杂度最优平均都是o(nlogn)，不稳定。核心是构建大顶堆，和每次取元素之后对堆的maxheapify——递归的方法调整堆，使得其满足根大于子节点的特性，注意停止条件。</p><p>[codesyntax lang=”php”]</p><pre>function heapSort(arr) {    function maxHeapify(arr, index, size) {      var max = index;      var left = 2*index+1;      var right = 2*index+2      if(left &lt; size &amp;&amp; arr[left] &gt; arr[max]) {        max = left;      }      if(right &lt; size &amp;&amp; arr[right] &gt; arr[max]) {        max = right;      }      if(index != max){        swap(arr, index, max);        maxHeapify(arr, max, size);      }    }    function buildHeap(arr) {      for(var i = Math.floor((arr.length-1)/2); i &gt;= 0; --i) {        maxHeapify(arr, i, arr.length);      }    }    function sort(arr) {      buildHeap(arr);      for(var i = 0; i &lt; arr.length; ++i) {        swap(arr, 0, arr.length-i-1);        //console.log(arr);        maxHeapify(arr, 0, arr.length-i-1);      }      return arr;    }    function swap(arr, a, b) {      var temp = arr[a];      arr[a] = arr[b];      arr[b] = temp;    }    return{arr:arr, sort:sort};  }</pre><p>6. 希尔排序</p><p>基于插排的改进，通过调整步长减少元素移动的次数（插排中相当于每次只能移动1位，如果调整2341中1的位置就需要比较3次移动3次）o(nlogn)</p><pre>function shellSort(arr) {    var gap = 1;    while(gap &lt; arr.length) {      gap = gap*3 + 1;    }    for(; gap &gt; 0; gap=Math.floor(gap/3)) {      for(var j = gap; j &lt; arr.length; ++j) {        var value = arr[j]        while(j&gt;=0 &amp;&amp; arr[j-gap] &gt; value) {          arr[j] = arr[j-gap];          j = j-gap;        }        arr[j] = value;        var value = arr[j];      }    }    return arr;  }</pre><p>7. 归并排序</p><p>典型分治思想，复杂度o(nlogn)，递归，空间需求大。（外排）</p><pre>function mergeSort(arr) {    if(arr.length == 1) {      return arr;    }else {      var m = Math.floor(arr.length/2);      return merge(mergeSort(arr.slice(0,m)), mergeSort(arr.slice(m,arr.lenth)));    }  }  function merge(arr1, arr2) {    var i = 0;    var j = 0;    var result = [];    while(i + j &lt; arr1.length + arr2.length) {      if(arr1[i] &lt;= arr2[j] || j == arr2.length) {        result[i+j] = arr1[i];        i++;      }else if(i &lt; arr1.length || i == arr1.length){        result[i+j] = arr2[j];        j++;      }    }    return result;  }</pre>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;js实现了一下几种基于比较的排序（常数时间的排序还没看！阿西吧！）&lt;/p&gt;
+      
+      
+        &lt;p&gt;js实现了一下几种基于比较的排序（常数时间的排序还没看！阿西吧！）&lt;/p&gt;
 &lt;p&gt;插排和冒泡平均时间复杂度o(n^2)，最优o(n)，前两种稳定。选择都是n^2不稳定。&lt;/p&gt;
 &lt;p&gt;提一下冒泡，一直以为它最坏最好都是n^2复杂度，不过写的时候发现每次冒泡可以检查本次是否交
+      
     
     </summary>
     
@@ -456,63 +157,17 @@ function makeClosures(arr, fn) {
     <link href="http://yoursite.com/2017/02/25/%E7%AE%97%E6%B3%95/kmp/"/>
     <id>http://yoursite.com/2017/02/25/算法/kmp/</id>
     <published>2017-02-25T09:55:14.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
+    <updated>2018-11-27T02:45:08.994Z</updated>
     
-    <content type="html"><![CDATA[<p>刷题遇到个kmp算法，以及求next数组的题目，没记得是什么，重新看了一遍这个算法，然后实现了一下。</p>
-<p>解决的问题大概是查找一个字符串A是否包含字符串B。暴力o(mn)，即每次不匹配字符串A，B相对位置移动1位。KMP相当于在这个基础上优化，每次不止移动一位，next数组解决的就是每次移动多少相对位置的问题。</p>
-<p>最简单的一种情况是，字符串B中没有重复，如abc，则每次不匹配之后可以直接把字符串B的首字符移动至字符串不匹配位置处继续比较，如图（-v- 灵魂画手）</p>
-<p><img src="http://www.arronlai.com/wp-content/uploads/2017/02/WechatIMG6-e1488015850577-300x225.jpeg" alt=""></p>
-<p>这个比较好理解因为没有重复字符，比较到一个不同就直接从字符串B的首字符重新比较。</p>
-<p>吊诡的是，如果字符串B里面有重复就不能直接移动到首位比较，然后问题就是应该移动到哪里。KMP的解决方案是维护一个next数组。以后解释，先直接贴代码</p>
-<pre>function getNext(str) {
-    var len = str.length;
-    var k = -1;
-    var j = 0;
-    var next = [-1];
-    while(j &lt; len) {
-      if(k==-1 || str[j] == str[k]) {
-        k++;
-        j++;
-        next[j] = k;
-      }else {
-        k = next[k];    //from k to next[k] no need to compare
-      }
-    }
-    console.log(next);
-    return next;
-  }</pre>
-
-<pre>function KMP(m, n) {
-    console.time("KMP:");
-    var i = 0;
-    var j = 0;
-    var next = getNext(n);
-    while(i &lt; m.length &amp;&amp; j &lt; n.length) {
-      if(j==-1 || m[i] == n[j]) {
-        i++;
-        j++;
-      } else {
-        j = next[j];
-      }
-    }
-    if(j == n.length) {
-      console.timeEnd("KMP:");
-      return (i-j);
-    }
-    console.timeEnd("KMP:");
-    return "not found";
-  }</pre>
-
-
-<p>&nbsp;</p>
-<p>数组里存的是每次字符串A，B不匹配时候应该把字符串B移到什么位置，利用这个数组KMP的实现如下：</p>
-<p>demo：<a href="https://arron-lai.github.io/algorithm/kmp" target="_blank" rel="external">https://arron-lai.github.io/algorithm/kmp</a></p>
-]]></content>
+    <content type="html"><![CDATA[<p>刷题遇到个kmp算法，以及求next数组的题目，没记得是什么，重新看了一遍这个算法，然后实现了一下。</p><p>解决的问题大概是查找一个字符串A是否包含字符串B。暴力o(mn)，即每次不匹配字符串A，B相对位置移动1位。KMP相当于在这个基础上优化，每次不止移动一位，next数组解决的就是每次移动多少相对位置的问题。</p><p>最简单的一种情况是，字符串B中没有重复，如abc，则每次不匹配之后可以直接把字符串B的首字符移动至字符串不匹配位置处继续比较，如图（-v- 灵魂画手）</p><p><img src="http://www.arronlai.com/wp-content/uploads/2017/02/WechatIMG6-e1488015850577-300x225.jpeg" alt=""></p><p>这个比较好理解因为没有重复字符，比较到一个不同就直接从字符串B的首字符重新比较。</p><p>吊诡的是，如果字符串B里面有重复就不能直接移动到首位比较，然后问题就是应该移动到哪里。KMP的解决方案是维护一个next数组。以后解释，先直接贴代码</p><pre>function getNext(str) {    var len = str.length;    var k = -1;    var j = 0;    var next = [-1];    while(j &lt; len) {      if(k==-1 || str[j] == str[k]) {        k++;        j++;        next[j] = k;      }else {        k = next[k];    //from k to next[k] no need to compare      }    }    console.log(next);    return next;  }</pre><pre>function KMP(m, n) {    console.time("KMP:");    var i = 0;    var j = 0;    var next = getNext(n);    while(i &lt; m.length &amp;&amp; j &lt; n.length) {      if(j==-1 || m[i] == n[j]) {        i++;        j++;      } else {        j = next[j];      }    }    if(j == n.length) {      console.timeEnd("KMP:");      return (i-j);    }    console.timeEnd("KMP:");    return "not found";  }</pre><p>&nbsp;</p><p>数组里存的是每次字符串A，B不匹配时候应该把字符串B移到什么位置，利用这个数组KMP的实现如下：</p><p>demo：<a href="https://arron-lai.github.io/algorithm/kmp" target="_blank" rel="noopener">https://arron-lai.github.io/algorithm/kmp</a></p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;刷题遇到个kmp算法，以及求next数组的题目，没记得是什么，重新看了一遍这个算法，然后实现了一下。&lt;/p&gt;
+      
+      
+        &lt;p&gt;刷题遇到个kmp算法，以及求next数组的题目，没记得是什么，重新看了一遍这个算法，然后实现了一下。&lt;/p&gt;
 &lt;p&gt;解决的问题大概是查找一个字符串A是否包含字符串B。暴力o(mn)，即每次不匹配字符串A，B相对位置移动1位。KMP相当于在这个基础上优化，每次不止移动一位，n
+      
     
     </summary>
     
@@ -528,31 +183,18 @@ function makeClosures(arr, fn) {
     <link href="http://yoursite.com/2017/02/20/Bootstrap/Bootstrap%20-%20%E5%9F%BA%E7%A1%80%20-%202/"/>
     <id>http://yoursite.com/2017/02/20/Bootstrap/Bootstrap - 基础 - 2/</id>
     <published>2017-02-20T08:40:03.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
+    <updated>2018-11-27T02:45:08.991Z</updated>
     
-    <content type="html"><![CDATA[<p>1. tabs, pills</p>
-<p>1) &lt;ul class=”nav nav-tabs”&gt;, &lt;ul class=”nav, nav-pills”&gt;</p>
-<p>2) &lt;li&gt;&lt;a data-toggle=”tab” href=”#p”&gt;&lt;/a&gt;&lt;/li&gt;</p>
-<p>3) &lt;div class=”tab-content”&gt;&lt;p id=”p” class=”tab-pane”&gt;&lt;/p&gt;&lt;/div&gt;</p>
-<p>2. navbar&nbsp;</p>
-<p>1) &lt;ul class=”nav navbar-default”&gt; navbar-nav/navbar-right</p>
-<p>3. form</p>
-<p>1) .form-inline</p>
-<p>2) .radio-inline .checkbox-inline</p>
-<p>3) .input-group .input-group-addon</p>
-<p>4) .inputlg .inputdefault .inputsm</p>
-<p>4.&nbsp;Carousel</p>
-<p>1) &lt;div id=”c” class=”carousel slide” data-ride=”carousel”&gt; &nbsp;//data-ride -start animation now</p>
-<p>2) &lt;ol class=”carousel-indicator”&gt;&lt;li data-target=”#c” data-slide-to=”0”&gt;&lt;/li&gt;&lt;/ol&gt;</p>
-<p>3) &lt;div class=”carousel-inner”&gt;&lt;div class=”item”&gt;&lt;/div&gt;&lt;/div&gt;</p>
-<p>4) &lt;a class=”left carousel-control” data-target=”#c” role=”button” data-slide=”prev”&gt;&lt;/a&gt;</p>
-]]></content>
+    <content type="html"><![CDATA[<p>1. tabs, pills</p><p>1) &lt;ul class=”nav nav-tabs”&gt;, &lt;ul class=”nav, nav-pills”&gt;</p><p>2) &lt;li&gt;&lt;a data-toggle=”tab” href=”#p”&gt;&lt;/a&gt;&lt;/li&gt;</p><p>3) &lt;div class=”tab-content”&gt;&lt;p id=”p” class=”tab-pane”&gt;&lt;/p&gt;&lt;/div&gt;</p><p>2. navbar&nbsp;</p><p>1) &lt;ul class=”nav navbar-default”&gt; navbar-nav/navbar-right</p><p>3. form</p><p>1) .form-inline</p><p>2) .radio-inline .checkbox-inline</p><p>3) .input-group .input-group-addon</p><p>4) .inputlg .inputdefault .inputsm</p><p>4.&nbsp;Carousel</p><p>1) &lt;div id=”c” class=”carousel slide” data-ride=”carousel”&gt; &nbsp;//data-ride -start animation now</p><p>2) &lt;ol class=”carousel-indicator”&gt;&lt;li data-target=”#c” data-slide-to=”0”&gt;&lt;/li&gt;&lt;/ol&gt;</p><p>3) &lt;div class=”carousel-inner”&gt;&lt;div class=”item”&gt;&lt;/div&gt;&lt;/div&gt;</p><p>4) &lt;a class=”left carousel-control” data-target=”#c” role=”button” data-slide=”prev”&gt;&lt;/a&gt;</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;1. tabs, pills&lt;/p&gt;
+      
+      
+        &lt;p&gt;1. tabs, pills&lt;/p&gt;
 &lt;p&gt;1) &amp;lt;ul class=”nav nav-tabs”&amp;gt;, &amp;lt;ul class=”nav, nav-pills”&amp;gt;&lt;/p&gt;
 &lt;p&gt;2) &amp;lt;li&amp;gt;&amp;lt;a data-toggle=”tab” h
+      
     
     </summary>
     
@@ -568,54 +210,17 @@ function makeClosures(arr, fn) {
     <link href="http://yoursite.com/2017/02/17/Bootstrap/Bootstrap%20-%20%E5%9F%BA%E7%A1%80%20-%201/"/>
     <id>http://yoursite.com/2017/02/17/Bootstrap/Bootstrap - 基础 - 1/</id>
     <published>2017-02-17T10:36:42.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
+    <updated>2018-11-27T02:45:08.990Z</updated>
     
-    <content type="html"><![CDATA[<p>1. &lt;meta name=”viewport” content=”width=device-width, initial-scale=1”&gt; (mobile first bootstrap3)</p>
-<p>2. container (fixed),&nbsp; container-fluid (full width of viewport)</p>
-<p>3. grid - 12 col-xs/col-sm/col-md/col-lg</p>
-<p>4.Typography</p>
-<p>1) Default Settings: font-size: 14px; line-height: 1.428;</p>
-<p>2) &lt;small&gt; create a smaller subtitle in header</p>
-<p>3) &lt;mark&gt; highlight</p>
-<p>4) &lt;abbr&gt;</p>
-<p>5) <strong>Contextual color and background color:</strong> .text-primary, .text-muted, .text-success, .text-warning, .text-danger, .text-info, .bg-primary, .bg-success, .bg-warning, .bg-danger, bg-info</p>
-<p>6) .text-left, .text-center, .text-right, .text-nowrap, .text-lowercase, .text-uppercase, .text-capitalize, .list-unstyled</p>
-<p>5. Table</p>
-<p>1) .table-stripped, .table-bordered, .table-hover, .table-condensed, .table-responsive</p>
-<p>2) .active, .info, .success, .warning, .danger</p>
-<p>6. Image</p>
-<p>1) .img-rounded, img-circle, .img-thumbnail, .img-responsive</p>
-<p>7. .jumbotron</p>
-<p>8. .well, .well-sm, .well-lg</p>
-<p>9. .alert .alert-success/info/danger/warning</p>
-<p>10. Button (.btn)</p>
-<p>1) .btn-primary, .btn-success, .btn-warning, .btn-danger, .btn-info</p>
-<p>2) .btn-lg, .btn-md, .btn-sm, .btn-xs</p>
-<p>3) .btn-block</p>
-<p>4) .disabled, .active</p>
-<p>11. .btn-group .btn-group-vertical .btn-group-justified</p>
-<p>12. .badge .label</p>
-<p>13. .pagination</p>
-<p>14. .pager .previous .next</p>
-<p>15. List Group</p>
-<p>1) .list-group</p>
-<p>2) .list-group-item</p>
-<p>16. Dropdown</p>
-<p>1) .dropdown</p>
-<p>2) .dropdown-toggle data-toggle=”dropdown”</p>
-<p>3) .dropdown-menu</p>
-<p>4) .dropdown-header</p>
-<p>5) .divider</p>
-<p>17. Collapse</p>
-<p>1) data-toggle=”collapse” data-target=”…”</p>
-<p>2) data-toggle=”collapse” data-parent=”…”&nbsp; (simple accordion)</p>
-<p>&nbsp;</p>
-]]></content>
+    <content type="html"><![CDATA[<p>1. &lt;meta name=”viewport” content=”width=device-width, initial-scale=1”&gt; (mobile first bootstrap3)</p><p>2. container (fixed),&nbsp; container-fluid (full width of viewport)</p><p>3. grid - 12 col-xs/col-sm/col-md/col-lg</p><p>4.Typography</p><p>1) Default Settings: font-size: 14px; line-height: 1.428;</p><p>2) &lt;small&gt; create a smaller subtitle in header</p><p>3) &lt;mark&gt; highlight</p><p>4) &lt;abbr&gt;</p><p>5) <strong>Contextual color and background color:</strong> .text-primary, .text-muted, .text-success, .text-warning, .text-danger, .text-info, .bg-primary, .bg-success, .bg-warning, .bg-danger, bg-info</p><p>6) .text-left, .text-center, .text-right, .text-nowrap, .text-lowercase, .text-uppercase, .text-capitalize, .list-unstyled</p><p>5. Table</p><p>1) .table-stripped, .table-bordered, .table-hover, .table-condensed, .table-responsive</p><p>2) .active, .info, .success, .warning, .danger</p><p>6. Image</p><p>1) .img-rounded, img-circle, .img-thumbnail, .img-responsive</p><p>7. .jumbotron</p><p>8. .well, .well-sm, .well-lg</p><p>9. .alert .alert-success/info/danger/warning</p><p>10. Button (.btn)</p><p>1) .btn-primary, .btn-success, .btn-warning, .btn-danger, .btn-info</p><p>2) .btn-lg, .btn-md, .btn-sm, .btn-xs</p><p>3) .btn-block</p><p>4) .disabled, .active</p><p>11. .btn-group .btn-group-vertical .btn-group-justified</p><p>12. .badge .label</p><p>13. .pagination</p><p>14. .pager .previous .next</p><p>15. List Group</p><p>1) .list-group</p><p>2) .list-group-item</p><p>16. Dropdown</p><p>1) .dropdown</p><p>2) .dropdown-toggle data-toggle=”dropdown”</p><p>3) .dropdown-menu</p><p>4) .dropdown-header</p><p>5) .divider</p><p>17. Collapse</p><p>1) data-toggle=”collapse” data-target=”…”</p><p>2) data-toggle=”collapse” data-parent=”…”&nbsp; (simple accordion)</p><p>&nbsp;</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;1. &amp;lt;meta name=”viewport” content=”width=device-width, initial-scale=1”&amp;gt; (mobile first bootstrap3)&lt;/p&gt;
+      
+      
+        &lt;p&gt;1. &amp;lt;meta name=”viewport” content=”width=device-width, initial-scale=1”&amp;gt; (mobile first bootstrap3)&lt;/p&gt;
 &lt;p&gt;2. container (fixed),&amp;nbsp
+      
     
     </summary>
     
@@ -631,23 +236,18 @@ function makeClosures(arr, fn) {
     <link href="http://yoursite.com/2017/02/16/%E9%9D%A2%E8%AF%95%E9%A2%98%E7%AC%94%E8%AE%B0/%E5%88%B7%E9%A2%98%E5%90%8E%E6%84%9F%20%EF%BC%8D%20JS%20%EF%BC%8D%203/"/>
     <id>http://yoursite.com/2017/02/16/面试题笔记/刷题后感 － JS － 3/</id>
     <published>2017-02-16T02:21:52.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
+    <updated>2018-11-27T02:45:08.995Z</updated>
     
-    <content type="html"><![CDATA[<p>1.</p>
-<p><img src="http://www.arronlai.com/wp-content/uploads/2017/02/3-1-300x52.png" alt=""></p>
-<p>JS object以key－value方式保存，操作按地址操作，所以赋值后newObj和obj其实指向相同地址。</p>
-<p>2. ajax事件：ajaxStart、ajaxStop、ajaxSuccess、ajaxError、ajaxComplete、ajaxSend</p>
-<p>3.</p>
-<blockquote>
-<p>Promise构造器的prototype上还有两个方法，分别是then和catch。这两个方法的参数也是回调函数，这些函数会在Promise实例进入不同状态后被调用。Then对应到resolve，catch对应到reject<br>错误，promise构造器的方法是resolve和reject。</p>
-</blockquote>
-]]></content>
+    <content type="html"><![CDATA[<p>1.</p><p><img src="http://www.arronlai.com/wp-content/uploads/2017/02/3-1-300x52.png" alt=""></p><p>JS object以key－value方式保存，操作按地址操作，所以赋值后newObj和obj其实指向相同地址。</p><p>2. ajax事件：ajaxStart、ajaxStop、ajaxSuccess、ajaxError、ajaxComplete、ajaxSend</p><p>3.</p><blockquote><p>Promise构造器的prototype上还有两个方法，分别是then和catch。这两个方法的参数也是回调函数，这些函数会在Promise实例进入不同状态后被调用。Then对应到resolve，catch对应到reject<br>错误，promise构造器的方法是resolve和reject。</p></blockquote>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;1.&lt;/p&gt;
+      
+      
+        &lt;p&gt;1.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;http://www.arronlai.com/wp-content/uploads/2017/02/3-1-300x52.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;JS object以key－value方式保存，操作按地址操作，所以赋
+      
     
     </summary>
     
@@ -663,21 +263,17 @@ function makeClosures(arr, fn) {
     <link href="http://yoursite.com/2017/02/16/HTML5CSS/H5%20-%20%E5%9F%BA%E7%A1%80%20-%202/"/>
     <id>http://yoursite.com/2017/02/16/HTML5CSS/H5 - 基础 - 2/</id>
     <published>2017-02-15T23:54:35.000Z</published>
-    <updated>2017-03-13T14:33:27.000Z</updated>
+    <updated>2018-11-27T02:45:08.991Z</updated>
     
-    <content type="html"><![CDATA[<p>1. native app -&gt; webApp -&gt; hybrid app</p>
-<p>2. 标签变化<br>1). &lt;!DOCTYPE HTML&gt; - 说明html版本<br>html4 -&gt; loose/transitional/strict dtd<br>html5 -&gt; 不需要引入dtd 和原来doctype相同，why？<br>2） dtd -&gt; doc type definition(xml) 定义一系列合法元素的结构（W3C） 但html5 不是基于此定义。</p>
-<p>3. 新增标签<br>-结构 ——相当于div 但是增加了语义<br>1）article 定义了一篇文章<br>2）header 一个页面或一个区域的头部<br>3）nav 导航链接<br>4）section 定义一个区域（类似div）<br>5）aside 定义页面部分的侧栏<br>6）hgroup 标题组 h1，h2<br>7）figure 一组多媒体内容及其标题<br>8）figcaption figure元素标题<br>9）footer 一个页面或一个区域底部<br>10）dialog 定义一个对话框<br>补充：header/section/aside/article/footer 一般不要嵌套使用 header/section/footer &gt; aside/article/figure/hgroup/nav &gt; div</p>
-<p>-多媒体标签：<br>1) video<br>2) audio<br>3) source<br>—example: &lt;audio src=”sample.mp3” autoplay=”autoplay” loop=”-1” controls=”controls”&gt;browser not support meida&lt;/audio&gt;<br>&lt;video src=”sample.mp4” autoplay=”autoplay” loop=”-1” controls=”controls”&gt;&lt;/video&gt;<br>—-source -&gt; 文件格式兼容性问题<br>&lt;audio autoplay=”autoplay”&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;source src=”sample.mp3” type=”audio/mpeg”&gt;<br>&lt;/audio&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type-&gt;转码器<br>&lt;video controls=”controls” width=”” height””&gt;<br>&nbsp;&nbsp;&nbsp; &lt;source src=”sample.mp4” type=”video/mp4”&gt;<br>&lt;/video&gt;<br>4) canvas<br>5) embed -flash &lt;embed src=”sample.swf”&gt;&lt;/embed&gt;<br>&nbsp;<br>-状态标签<br>1) meter 气压/温度/电压等 (chrome, opera)<br>&lt;meter value=”” min=”” max=”” low=”” high=”” optimum=””&gt;&lt;/meter&gt; 会根据各值的区间显示当前状态，若只有value将按百分比计算<br>2) progress (chrome ff opera)<br>&lt;progress value=”” max=””&gt; 根据value和max的值计算其加载进度<br>&lt;progress max=””&gt; 加载中动画<br>-列表标签<br>1) datalist<br>&lt;input placeholder=”” list=””&gt;<br>&lt;datalist id=”plist”&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;option value=””&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;option value=””&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;/option&gt;<br>&lt;/datalist&gt;&lt;/input&gt;<br>2) details<br>&lt;details open=”open”&gt;&lt;summary&gt;&lt;/summary&gt;&lt;p&gt;&lt;/p&gt;&lt;/details&gt;<br>-menu标签 主流浏览器支持不好</p>
-<p>-其他标签<br>1) ruby，rt，rp -注释（音标）rp针对不兼容rt的浏览器的fallback<br>&lt;ruby&gt;&lt;rp&gt;&lt;/rp&gt;&lt;rt&gt;content&lt;/rt&gt;&lt;rp&gt;&lt;/rp&gt;&lt;/ruby&gt;<br>2) mark<br>3) output 对应表单input用于打印结果，配合form oninput事件</p>
-<p>4.删除的标签<br>1) basefont, big, center, font, s, strike, tt, u (偏向styling的标签）<br>2）frame, frameset, noframes（对可用性造成负面影响）<br>3) acronym, applet isindex, dir（混淆元素）</p>
-<p>5. 重定义标签<br>1) b, i -没有重要的意义<br>2) dd, dt -原本是dl下的标签，现在可以和details, figure一起使用<br>3) hr -水平线<span style="text-decoration: underline;">并表示主题结束</span><br>4) small 小字体并表示批注<br>5) strong 重要性</p>
-]]></content>
+    <content type="html"><![CDATA[<p>1. native app -&gt; webApp -&gt; hybrid app</p><p>2. 标签变化<br>1). &lt;!DOCTYPE HTML&gt; - 说明html版本<br>html4 -&gt; loose/transitional/strict dtd<br>html5 -&gt; 不需要引入dtd 和原来doctype相同，why？<br>2） dtd -&gt; doc type definition(xml) 定义一系列合法元素的结构（W3C） 但html5 不是基于此定义。</p><p>3. 新增标签<br>-结构 ——相当于div 但是增加了语义<br>1）article 定义了一篇文章<br>2）header 一个页面或一个区域的头部<br>3）nav 导航链接<br>4）section 定义一个区域（类似div）<br>5）aside 定义页面部分的侧栏<br>6）hgroup 标题组 h1，h2<br>7）figure 一组多媒体内容及其标题<br>8）figcaption figure元素标题<br>9）footer 一个页面或一个区域底部<br>10）dialog 定义一个对话框<br>补充：header/section/aside/article/footer 一般不要嵌套使用 header/section/footer &gt; aside/article/figure/hgroup/nav &gt; div</p><p>-多媒体标签：<br>1) video<br>2) audio<br>3) source<br>—example: &lt;audio src=”sample.mp3” autoplay=”autoplay” loop=”-1” controls=”controls”&gt;browser not support meida&lt;/audio&gt;<br>&lt;video src=”sample.mp4” autoplay=”autoplay” loop=”-1” controls=”controls”&gt;&lt;/video&gt;<br>—-source -&gt; 文件格式兼容性问题<br>&lt;audio autoplay=”autoplay”&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;source src=”sample.mp3” type=”audio/mpeg”&gt;<br>&lt;/audio&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type-&gt;转码器<br>&lt;video controls=”controls” width=”” height””&gt;<br>&nbsp;&nbsp;&nbsp; &lt;source src=”sample.mp4” type=”video/mp4”&gt;<br>&lt;/video&gt;<br>4) canvas<br>5) embed -flash &lt;embed src=”sample.swf”&gt;&lt;/embed&gt;<br>&nbsp;<br>-状态标签<br>1) meter 气压/温度/电压等 (chrome, opera)<br>&lt;meter value=”” min=”” max=”” low=”” high=”” optimum=””&gt;&lt;/meter&gt; 会根据各值的区间显示当前状态，若只有value将按百分比计算<br>2) progress (chrome ff opera)<br>&lt;progress value=”” max=””&gt; 根据value和max的值计算其加载进度<br>&lt;progress max=””&gt; 加载中动画<br>-列表标签<br>1) datalist<br>&lt;input placeholder=”” list=””&gt;<br>&lt;datalist id=”plist”&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;option value=””&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;/option&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;option value=””&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;/option&gt;<br>&lt;/datalist&gt;&lt;/input&gt;<br>2) details<br>&lt;details open=”open”&gt;&lt;summary&gt;&lt;/summary&gt;&lt;p&gt;&lt;/p&gt;&lt;/details&gt;<br>-menu标签 主流浏览器支持不好</p><p>-其他标签<br>1) ruby，rt，rp -注释（音标）rp针对不兼容rt的浏览器的fallback<br>&lt;ruby&gt;&lt;rp&gt;&lt;/rp&gt;&lt;rt&gt;content&lt;/rt&gt;&lt;rp&gt;&lt;/rp&gt;&lt;/ruby&gt;<br>2) mark<br>3) output 对应表单input用于打印结果，配合form oninput事件</p><p>4.删除的标签<br>1) basefont, big, center, font, s, strike, tt, u (偏向styling的标签）<br>2）frame, frameset, noframes（对可用性造成负面影响）<br>3) acronym, applet isindex, dir（混淆元素）</p><p>5. 重定义标签<br>1) b, i -没有重要的意义<br>2) dd, dt -原本是dl下的标签，现在可以和details, figure一起使用<br>3) hr -水平线<span style="text-decoration: underline;">并表示主题结束</span><br>4) small 小字体并表示批注<br>5) strong 重要性</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;1. native app -&amp;gt; webApp -&amp;gt; hybrid app&lt;/p&gt;
+      
+      
+        &lt;p&gt;1. native app -&amp;gt; webApp -&amp;gt; hybrid app&lt;/p&gt;
 &lt;p&gt;2. 标签变化&lt;br&gt;1). &amp;lt;!DOCTYPE HTML&amp;gt; - 说明html版本&lt;br&gt;html4 -&amp;gt; loose/transitional/stri
+      
     
     </summary>
     
@@ -693,69 +289,19 @@ function makeClosures(arr, fn) {
     <link href="http://yoursite.com/2017/02/15/JS/JS%20-%20%E5%9F%BA%E7%A1%80%20-%202/"/>
     <id>http://yoursite.com/2017/02/15/JS/JS - 基础 - 2/</id>
     <published>2017-02-15T07:23:06.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
+    <updated>2018-11-27T02:45:08.992Z</updated>
     
-    <content type="html"><![CDATA[<p>1. 运算顺序：算术&gt;比较&gt;逻辑&gt;赋值</p>
-<p>2. a++ ++a</p>
-<p>3. 数组可以指定长度，如new Array(12);但实际还是变长的，可以储存长度之外个数组。</p>
-<p>&nbsp;&nbsp;&nbsp; .length</p>
-<p>&nbsp;&nbsp;&nbsp; 二维数组：相当于一维数组的元素是数组</p>
-<p>4. switch</p>
-<p>switch() {</p>
-<p>&nbsp;&nbsp;&nbsp; case 1:</p>
-<p>&nbsp;&nbsp;&nbsp; break;</p>
-<p>&nbsp;&nbsp;&nbsp; default:</p>
-<p>}</p>
-<p>注意 break;</p>
-<p>5. for, while, do while -&nbsp; break;&nbsp; continue;</p>
-<p>6. 事件 onclick, onmouseover, onmouseout, onfocus, onselect, onchange, onload, onunload(window close)</p>
-<p><em>7. 对象</em></p>
-<p>1) Date</p>
-<p>A. new Date(); new Date(2017,2,15); new Date(“Oct 1 2017”);</p>
-<p>B. 方法：getFullYear(); getDay(); getTime(); setTime(); - 注：milliseconds</p>
-<p>2) String</p>
-<p>A. 方法：toUpperCase(); toLowerCase; charAt(); indexOf(substr, pos); split(char, limit); substring(start, end);&nbsp; substr(start, length);</p>
-<p>3) Math</p>
-<p>A. 方法：ceil(); floor(); round(); random(); （注：无参数）</p>
-<p>4) Array</p>
-<p>A. new Array(); new Array(10); new Array(1,2,3);</p>
-<p>B. 方法：concat();（注：不修改数组本身） join();（注：可空，逗号）reverse(); slice(start, end);（注：end可省可负，不改变原数组）sort(function()); （注：－1，1）</p>
-<p><em>8. window对象</em></p>
-<p>1) setInterval(function, interval); 注：interval以milliseconds计算。clearInterval(i);</p>
-<p>2) setTimeout(function, time); clearTimeout(i);</p>
-<p>9. History 对象</p>
-<p>1) 属性：length</p>
-<p>2) 方法：go();（注：代表向前或向后多少页） back(); forward();</p>
-<p>10. Location</p>
-<p>获取与当前地址相关信息</p>
-<p>href, window.location.reload(); window.location.assign();</p>
-<p>11. Navagator</p>
-<p>当前browser相关信息</p>
-<p>1) userAgent; -&gt; 用户代理字符串</p>
-<p>12. screen (window.screen/screen)</p>
-<p>1)属性：width, height, availWidth, availHeight</p>
-<hr>
-<p>12. DOM</p>
-<p>1) getElementById(); getElementsByName(); getElementsByTagName();</p>
-<p>2) getAttribute(); setAttribute(name, value);</p>
-<p>3) nodeName, nodeValue, nodeType</p>
-<p>4) childNodes, parentNode, firstChild, lastChild, nextSibling, previousSibling</p>
-<p>5) appendChild(); insertBefore(,); removeChild(node); replaceChild(new, old);</p>
-<p>6) document.createElement(); （注：创建元素节点，参数为tag name）document.createTextNode(); （注：创建的即为普通文本节点）</p>
-<hr>
-<p>13. 网页尺寸</p>
-<p>1) 窗口宽高：cross browser：document.documentElement.clientWidth || document.body.clientWidth; document.documentElement.clientHeight || document.body.clientHeight;</p>
-<p>2) 内容宽高: cross browser: document.documentElement.scrollWidth || document.body.scrollWidth; document.documentElement.scrollHeight || document.body.scrollHeight; 注：IE，Opera返回值可比clientHeight/clientWidth小，FF返回最小值等于窗口宽高。</p>
-<p>3) 网页宽高：offsetHeight/offsetWidth = clientHeight/clientWidth + 滚动条 ＋ 边框</p>
-<p>4) 滚动距离: scrollTop; scrollLeft; offsetTop; offsetLeft; （注：offset相对于该元素的父元素）</p>
-]]></content>
+    <content type="html"><![CDATA[<p>1. 运算顺序：算术&gt;比较&gt;逻辑&gt;赋值</p><p>2. a++ ++a</p><p>3. 数组可以指定长度，如new Array(12);但实际还是变长的，可以储存长度之外个数组。</p><p>&nbsp;&nbsp;&nbsp; .length</p><p>&nbsp;&nbsp;&nbsp; 二维数组：相当于一维数组的元素是数组</p><p>4. switch</p><p>switch() {</p><p>&nbsp;&nbsp;&nbsp; case 1:</p><p>&nbsp;&nbsp;&nbsp; break;</p><p>&nbsp;&nbsp;&nbsp; default:</p><p>}</p><p>注意 break;</p><p>5. for, while, do while -&nbsp; break;&nbsp; continue;</p><p>6. 事件 onclick, onmouseover, onmouseout, onfocus, onselect, onchange, onload, onunload(window close)</p><p><em>7. 对象</em></p><p>1) Date</p><p>A. new Date(); new Date(2017,2,15); new Date(“Oct 1 2017”);</p><p>B. 方法：getFullYear(); getDay(); getTime(); setTime(); - 注：milliseconds</p><p>2) String</p><p>A. 方法：toUpperCase(); toLowerCase; charAt(); indexOf(substr, pos); split(char, limit); substring(start, end);&nbsp; substr(start, length);</p><p>3) Math</p><p>A. 方法：ceil(); floor(); round(); random(); （注：无参数）</p><p>4) Array</p><p>A. new Array(); new Array(10); new Array(1,2,3);</p><p>B. 方法：concat();（注：不修改数组本身） join();（注：可空，逗号）reverse(); slice(start, end);（注：end可省可负，不改变原数组）sort(function()); （注：－1，1）</p><p><em>8. window对象</em></p><p>1) setInterval(function, interval); 注：interval以milliseconds计算。clearInterval(i);</p><p>2) setTimeout(function, time); clearTimeout(i);</p><p>9. History 对象</p><p>1) 属性：length</p><p>2) 方法：go();（注：代表向前或向后多少页） back(); forward();</p><p>10. Location</p><p>获取与当前地址相关信息</p><p>href, window.location.reload(); window.location.assign();</p><p>11. Navagator</p><p>当前browser相关信息</p><p>1) userAgent; -&gt; 用户代理字符串</p><p>12. screen (window.screen/screen)</p><p>1)属性：width, height, availWidth, availHeight</p><hr><p>12. DOM</p><p>1) getElementById(); getElementsByName(); getElementsByTagName();</p><p>2) getAttribute(); setAttribute(name, value);</p><p>3) nodeName, nodeValue, nodeType</p><p>4) childNodes, parentNode, firstChild, lastChild, nextSibling, previousSibling</p><p>5) appendChild(); insertBefore(,); removeChild(node); replaceChild(new, old);</p><p>6) document.createElement(); （注：创建元素节点，参数为tag name）document.createTextNode(); （注：创建的即为普通文本节点）</p><hr><p>13. 网页尺寸</p><p>1) 窗口宽高：cross browser：document.documentElement.clientWidth || document.body.clientWidth; document.documentElement.clientHeight || document.body.clientHeight;</p><p>2) 内容宽高: cross browser: document.documentElement.scrollWidth || document.body.scrollWidth; document.documentElement.scrollHeight || document.body.scrollHeight; 注：IE，Opera返回值可比clientHeight/clientWidth小，FF返回最小值等于窗口宽高。</p><p>3) 网页宽高：offsetHeight/offsetWidth = clientHeight/clientWidth + 滚动条 ＋ 边框</p><p>4) 滚动距离: scrollTop; scrollLeft; offsetTop; offsetLeft; （注：offset相对于该元素的父元素）</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;1. 运算顺序：算术&amp;gt;比较&amp;gt;逻辑&amp;gt;赋值&lt;/p&gt;
+      
+      
+        &lt;p&gt;1. 运算顺序：算术&amp;gt;比较&amp;gt;逻辑&amp;gt;赋值&lt;/p&gt;
 &lt;p&gt;2. a++ ++a&lt;/p&gt;
 &lt;p&gt;3. 数组可以指定长度，如new Array(12);但实际还是变长的，可以储存长度之外个数组。&lt;/p&gt;
 &lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; .length&lt;
+      
     
     </summary>
     
@@ -771,34 +317,19 @@ function makeClosures(arr, fn) {
     <link href="http://yoursite.com/2017/02/14/JS/JS%20-%20%E5%9F%BA%E7%A1%80%20-%201/"/>
     <id>http://yoursite.com/2017/02/14/JS/JS - 基础 - 1/</id>
     <published>2017-02-14T10:57:38.000Z</published>
-    <updated>2017-03-13T15:06:20.000Z</updated>
+    <updated>2018-11-27T02:45:08.992Z</updated>
     
-    <content type="html"><![CDATA[<p>1. 基本格式</p>
-<p>&lt;script type=”text/javascript”&gt; //code &lt;/script&gt;</p>
-<p>&lt;script src=””&gt;&lt;/script&gt;</p>
-<p>2. 变量命名：字母、下划线、美元符号开头，由任意数字、字母、下划线、美元符号组成。区分大小写。</p>
-<p>3. io</p>
-<p>document.write()用于向html流输出，可输出变量</p>
-<p>alert()确认框打印，类似document.write，<strong>点击确定前不进行任何操作</strong></p>
-<p>confirm()获取用户输入，true/false</p>
-<p>prompt()获取用户输入，null/string</p>
-<p>4. window</p>
-<p>window.open(string url, string name, string params)&nbsp; name(‘_blank’, ‘_self’, ‘_top’); params包括window距离屏幕的位置，window大小，menubar、scrollbar是否包括等。</p>
-<p>window.close(); - 关闭当前窗口 or [窗口对象].close();</p>
-<p>5. DOM</p>
-<p>1) Document Object Model将html呈现为节点树结构（包括元素，属性，文本三种节点）eg.&lt;a href=”http”//www.arronlai.com”&gt;click me&lt;/a&gt;</p>
-<p>2) document.getElementById() 返回HTML Object</p>
-<p>3) .innerHTML</p>
-<p>4) .style.property (display)</p>
-<p>5) className</p>
-]]></content>
+    <content type="html"><![CDATA[<p>1. 基本格式</p><p>&lt;script type=”text/javascript”&gt; //code &lt;/script&gt;</p><p>&lt;script src=””&gt;&lt;/script&gt;</p><p>2. 变量命名：字母、下划线、美元符号开头，由任意数字、字母、下划线、美元符号组成。区分大小写。</p><p>3. io</p><p>document.write()用于向html流输出，可输出变量</p><p>alert()确认框打印，类似document.write，<strong>点击确定前不进行任何操作</strong></p><p>confirm()获取用户输入，true/false</p><p>prompt()获取用户输入，null/string</p><p>4. window</p><p>window.open(string url, string name, string params)&nbsp; name(‘_blank’, ‘_self’, ‘_top’); params包括window距离屏幕的位置，window大小，menubar、scrollbar是否包括等。</p><p>window.close(); - 关闭当前窗口 or [窗口对象].close();</p><p>5. DOM</p><p>1) Document Object Model将html呈现为节点树结构（包括元素，属性，文本三种节点）eg.&lt;a href=”http”//<a href="http://www.arronlai.com&quot;&gt;click" target="_blank" rel="noopener">www.arronlai.com&quot;&gt;click</a> me&lt;/a&gt;</p><p>2) document.getElementById() 返回HTML Object</p><p>3) .innerHTML</p><p>4) .style.property (display)</p><p>5) className</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;1. 基本格式&lt;/p&gt;
+      
+      
+        &lt;p&gt;1. 基本格式&lt;/p&gt;
 &lt;p&gt;&amp;lt;script type=”text/javascript”&amp;gt; //code &amp;lt;/script&amp;gt;&lt;/p&gt;
 &lt;p&gt;&amp;lt;script src=””&amp;gt;&amp;lt;/script&amp;gt;&lt;/p&gt;
 &lt;p&gt;2. 变量命名：字母
+      
     
     </summary>
     
@@ -814,21 +345,18 @@ function makeClosures(arr, fn) {
     <link href="http://yoursite.com/2017/02/14/%E9%9D%A2%E8%AF%95%E9%A2%98%E7%AC%94%E8%AE%B0/%E5%88%B7%E9%A2%98%E5%90%8E%E6%84%9F%20-%20JS%20-%202/"/>
     <id>http://yoursite.com/2017/02/14/面试题笔记/刷题后感 - JS - 2/</id>
     <published>2017-02-13T16:16:15.000Z</published>
-    <updated>2017-03-13T14:54:07.000Z</updated>
+    <updated>2018-11-27T02:45:08.995Z</updated>
     
-    <content type="html"><![CDATA[<ol>
-<li>JS创建Array：1）var arr = [1, 2, 3]; 2）var arr = Array(12); （取0清空数组）3）var arr = Array(1,2,3);</li>
-<li>$.ajax()发送get/post请求加载远程数据；$(selector).load()加载远程数据并放入selector；$get发送http get请求加载远程数据；getScript()加载远程js文件并执行。</li>
-<li>ES6 generator function： function * gen(){}</li>
-<li>call v.s. apply -&gt; 第一个参数都是this，不同的是剩余参数直接传入还是通过数组传入。</li>
-</ol>
-]]></content>
+    <content type="html"><![CDATA[<ol><li>JS创建Array：1）var arr = [1, 2, 3]; 2）var arr = Array(12); （取0清空数组）3）var arr = Array(1,2,3);</li><li>$.ajax()发送get/post请求加载远程数据；$(selector).load()加载远程数据并放入selector；$get发送http get请求加载远程数据；getScript()加载远程js文件并执行。</li><li>ES6 generator function： function * gen(){}</li><li>call v.s. apply -&gt; 第一个参数都是this，不同的是剩余参数直接传入还是通过数组传入。</li></ol>]]></content>
     
     <summary type="html">
     
-      &lt;ol&gt;
+      
+      
+        &lt;ol&gt;
 &lt;li&gt;JS创建Array：1）var arr = [1, 2, 3]; 2）var arr = Array(12); （取0清空数组）3）var arr = Array(1,2,3);&lt;/li&gt;
 &lt;li&gt;$.ajax()发送get/post请求加载远程数据；$(sel
+      
     
     </summary>
     
@@ -844,26 +372,18 @@ function makeClosures(arr, fn) {
     <link href="http://yoursite.com/2017/02/13/%E9%9D%A2%E8%AF%95%E9%A2%98%E7%AC%94%E8%AE%B0/%E5%88%B7%E9%A2%98%E5%90%8E%E6%84%9F%E2%80%94%E2%80%94js%20-%201/"/>
     <id>http://yoursite.com/2017/02/13/面试题笔记/刷题后感——js - 1/</id>
     <published>2017-02-13T15:28:56.000Z</published>
-    <updated>2017-03-22T06:30:44.000Z</updated>
+    <updated>2018-11-27T02:45:08.995Z</updated>
     
-    <content type="html"><![CDATA[<ol>
-<li><img title="js_1-1" alt="js_1-1" src="http://on3eu0vfd.bkt.clouddn.com/static/images/js/1-1.png">
-green; blue - this指针对于普通函数调用指向window对象。<br>2.<img title="js_1-2" alt="js_1-2" src="http://on3eu0vfd.bkt.clouddn.com/static/images/js/1-2.png">
-回调机制：回调函数会被放到event-loop等待线程中的函数执行结束后执行。</li>
-<li>字符串转bollean：空-&gt;false</li>
-<li>闭包：读取函数内部变量，可以使这些值一直保存在内存中。</li>
-<li>css属性写法去掉‘-’改为驼峰写法即为js中属性名称。</li>
-<li>1+ +”2” + “2” = 32; 1+”2”+”2” = 122; “A”-“B”+2 = NaN; “A”-“B”+”2” = NaN2; 单独+是一元操作符，调用Number()函数获得取值。加法会变成字符串，减法变成数字。</li>
-<li><div class="result-question-box"><br><div class="subject-question"><br><div>输出对象中值大于2的key的数组</div><br><div>var data = {a: 1, b: 2, c: 3, d: 4};</div><br><div>Object.keys(data).filter(function(x) { return <span class="blank-num">__</span> ;})</div><br><div>期待输出：[“c”,”d”]</div><br><div>return data[x]&gt;2</div><br><div>Object.keys(object)返回object可枚举的属性和方法名称，Array。</div><br><div>Array.filter(function)按条件对Array筛选并返回。</div><br></div><br></div>
-</li>
-</ol>
-]]></content>
+    <content type="html"><![CDATA[<ol><li><img title="js_1-1" alt="js_1-1" src="http://on3eu0vfd.bkt.clouddn.com/static/images/js/1-1.png">green; blue - this指针对于普通函数调用指向window对象。<br>2.<img title="js_1-2" alt="js_1-2" src="http://on3eu0vfd.bkt.clouddn.com/static/images/js/1-2.png">回调机制：回调函数会被放到event-loop等待线程中的函数执行结束后执行。</li><li>字符串转bollean：空-&gt;false</li><li>闭包：读取函数内部变量，可以使这些值一直保存在内存中。</li><li>css属性写法去掉‘-’改为驼峰写法即为js中属性名称。</li><li>1+ +”2” + “2” = 32; 1+”2”+”2” = 122; “A”-“B”+2 = NaN; “A”-“B”+”2” = NaN2; 单独+是一元操作符，调用Number()函数获得取值。加法会变成字符串，减法变成数字。</li><li><div class="result-question-box"><br><div class="subject-question"><br><div>输出对象中值大于2的key的数组</div><br><div>var data = {a: 1, b: 2, c: 3, d: 4};</div><br><div>Object.keys(data).filter(function(x) { return <span class="blank-num">__</span> ;})</div><br><div>期待输出：[“c”,”d”]</div><br><div>return data[x]&gt;2</div><br><div>Object.keys(object)返回object可枚举的属性和方法名称，Array。</div><br><div>Array.filter(function)按条件对Array筛选并返回。</div><br></div><br></div></li></ol>]]></content>
     
     <summary type="html">
     
-      &lt;ol&gt;
+      
+      
+        &lt;ol&gt;
 &lt;li&gt;&lt;img title=&quot;js_1-1&quot; alt=&quot;js_1-1&quot; src=&quot;http://on3eu0vfd.bkt.clouddn.com/static/images/js/1-1.png&quot;&gt;
 green; blue - this指针对于普通函数调用指向win
+      
     
     </summary>
     
@@ -879,24 +399,18 @@ green; blue - this指针对于普通函数调用指向win
     <link href="http://yoursite.com/2017/02/13/%E9%9D%A2%E8%AF%95%E9%A2%98%E7%AC%94%E8%AE%B0/css%20-%201/"/>
     <id>http://yoursite.com/2017/02/13/面试题笔记/css - 1/</id>
     <published>2017-02-13T14:54:12.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
+    <updated>2018-11-27T02:45:08.995Z</updated>
     
-    <content type="html"><![CDATA[<ol>
-<li>background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动时的行为。</li>
-<li>符合W3C标准阻止事件冒泡（从子传递至父）：event.stopPropagation &lt;-&gt; event.stopImmediatePropagation（阻止冒泡且停止当前节点上处理程序被调用） &lt;-&gt; cancelBubble（适用于IE，不符合W3C）</li>
-<li>flex-box布局：css3布局，chrome 21+, ff 22+, opera 12.1+, safari 6.1+, ie 10+。容器属性：flex-direction, flex-wrap, flex-flow, justify-content, align-items, align-content；项目属性：order, flex-grow, flex-shrink, flex-basis, flex, align-self</li>
-<li>属于css3新增属性：box-shadow, text-shadow, border-radius, rgba</li>
-<li>产生粗体字的标签：&lt;b&gt;、&lt;strong&gt; （补充：产生斜体的标签 &lt;em&gt;、&lt;i&gt;；产生下划线的标签&lt;u&gt;）</li>
-<li>HTML body部分的JS会在页面加载时候被执行，HTML head部分的JS会在被调用的时候执行。</li>
-<li>div标签表示分隔标签——W3C：div标签可以把文档分割为独立的、不同的部分，它可以作为严格的组织工具，并且不使用任何格式与其关联。<br>小结：html5，css3知识积累不够，错题较多，需要看HTML5/css3基础知识</li>
-</ol>
-]]></content>
+    <content type="html"><![CDATA[<ol><li>background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动时的行为。</li><li>符合W3C标准阻止事件冒泡（从子传递至父）：event.stopPropagation &lt;-&gt; event.stopImmediatePropagation（阻止冒泡且停止当前节点上处理程序被调用） &lt;-&gt; cancelBubble（适用于IE，不符合W3C）</li><li>flex-box布局：css3布局，chrome 21+, ff 22+, opera 12.1+, safari 6.1+, ie 10+。容器属性：flex-direction, flex-wrap, flex-flow, justify-content, align-items, align-content；项目属性：order, flex-grow, flex-shrink, flex-basis, flex, align-self</li><li>属于css3新增属性：box-shadow, text-shadow, border-radius, rgba</li><li>产生粗体字的标签：&lt;b&gt;、&lt;strong&gt; （补充：产生斜体的标签 &lt;em&gt;、&lt;i&gt;；产生下划线的标签&lt;u&gt;）</li><li>HTML body部分的JS会在页面加载时候被执行，HTML head部分的JS会在被调用的时候执行。</li><li>div标签表示分隔标签——W3C：div标签可以把文档分割为独立的、不同的部分，它可以作为严格的组织工具，并且不使用任何格式与其关联。<br>小结：html5，css3知识积累不够，错题较多，需要看HTML5/css3基础知识</li></ol>]]></content>
     
     <summary type="html">
     
-      &lt;ol&gt;
+      
+      
+        &lt;ol&gt;
 &lt;li&gt;background-attachment:{scroll, fixed, inherit} 规定背景图片在页面滚动时的行为。&lt;/li&gt;
 &lt;li&gt;符合W3C标准阻止事件冒泡（从子传递至父）：event.stopPropagation &amp;lt;-&amp;gt; even
+      
     
     </summary>
     
@@ -908,134 +422,25 @@ green; blue - this指针对于普通函数调用指向win
   </entry>
   
   <entry>
-    <title>我想尽力记住的那些开始和结束</title>
-    <link href="http://yoursite.com/2017/02/13/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E6%88%91%E6%83%B3%E5%B0%BD%E5%8A%9B%E8%AE%B0%E4%BD%8F%E7%9A%84%E9%82%A3%E4%BA%9B%E5%BC%80%E5%A7%8B%E5%92%8C%E7%BB%93%E6%9D%9F/"/>
-    <id>http://yoursite.com/2017/02/13/只言片语/我想尽力记住的那些开始和结束/</id>
-    <published>2017-02-12T16:35:49.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>站地铁上发呆的时候思考了一下，其实很多特别琐碎平常的事情，一旦有了次数就会变得意义非凡。比如第一次走路，第十次结婚纪念日。</p>
-<p>当然，第几次这种东西，慢慢我们就忘记了。于是，我们也学会了记下最后那几次。比如和某人的最后一面，程序里的最后一个bug（好吧，这种情况可能并不会发生），谁谁的最后几场演唱会。所以，刚刚脑子里蹦哒的念头是：这说不定是我最后一次来这个球场打球了。</p>
-<p>哦对，刚刚是在打球，以及，打的是羽毛球。篮球，我够不到。和几个马来的、中国的小伙伴（其实我是最年轻的）一起。说起来，这个群算是我刚到这里就开始陪我的了。转念一想，今天可能也是倒数几次见这些人了，居然有些舍不得。用居然这个词是我觉得，我其实心里应该不会有什么波动，我其实应该理解了公司里听的那句’people come, people leave.’，可不就是这个样子吗。但是吧，有些个小情绪又不配合。</p>
-<p>既然说的不舍，那不舍的是人还是这个城市啊。说不清楚。对这里似乎是有一些好感的，比如还真是挺干净的，比如一些水果真的好吃到爆，很多人都还非常温柔友好呀。</p>
-<p>然后，关于那些舍不得的人，会是谁呢？</p>
-<p>会不会是现在和我住一个屋子的那对情侣。我先认识的是那个女生，同个学院，不同专业，读书时候合租的。典型双子座，逼逼叨叨，一天可以聊炸三个人。所以我是怎么认识的这货，那天好像天气不错，我们合租的人要一起见第一面，提心掉胆的就去了。然后我是在下车时候看见这货，戴了个墨镜——诶，装什么x。后来啊，后来就去吃饭啦，她吃了两份。接下来，转了转学校，然后这姑娘语出惊人地问了些问题，我被抓去帮她提了行李。第一次见面大概就是这样。你好，室友x。后来见到她男朋友m，第一次见面似乎是他跑来我家送什么东西给他娘子。挎着一个白色的布包进来说了一句‘hello’。第一印象：嗯！确实是新疆人。在聊了几句之后发现：没错！就是新疆人。现在，被迫和这俩人合租着，每天要听到一些奇怪的get不到的点和莫名的一些绰号。不过还好同屋有时差基本不会被虐狗——心满意足。</p>
-<p>那么，又会不会是另外两只名字很有趣室友，一男一女，不是情侣。讲真，知道他俩名字分别是哪几个字的时候我还是吃了一惊的。第一次见面是在一个天大地大的狼人杀局上，那一天，我们两个专业的好看的人们聚在了一起。至于这个局有多大？这么说吧，发言一圈四十多分钟，人齐了之后我们一个晚上就打了一局。我记得那一局，这只女生当的上帝。天啦，落落大方！那个男生是守卫——他！不！会！玩！哦对，我是女巫，然后好人血崩了。后来啊，我们五个凑在一起合租了，吃了几顿饭（我不要脸地缺了几次）。以及他们做吃的超级好吃啊！先说女生啊，很自律，果断，效率超高，且分析事情很冷静，被我们叫哥。家居用品基本是她买的，还搭了一个放在厕所用的塑料白色架子。一言蔽之，特！别！优！秀！然后她率先找到了工作，因为远搬了出去，家庭饭局上我们还会聚到一起。男生，重庆孩子，处女座，是个吃货，喜欢做饭，勤劳勇敢（这句只是为了押韵），房间很整洁。他爱打麻将，家里刚装wifi就每天上网打麻将，赌钱，啧啧啧。这人口头禅是“哎呀，累死了。”，一边手还摸着自己的肚子——亲测手感不错，软乎乎的。</p>
-<p>还有，那个名字里藏着一个angel的女孩子。她是个瘦瘦小小，白白净净的女生，湖北人，能吃辣但是有节制地不乱吃。关系是室友和同学，所以经常一起去上课，一起回家，期末时候一起焦头烂额抓耳挠腮地通宵，去图书馆也有占座情谊。她学习很认真，一个常见的画面是我睡醒开始问她刚才在干嘛。生活也很认真——每天坚持跑步，有空就会自己做饭，家常菜都不在话下。有一次吃过她做的咖喱面，简直好吃炸了！还有一次是，她用湿毛巾捂着口鼻在厨房炒辣椒，客厅弥漫了两个小时的干辣椒味道，我们的鼻子都红红的，每个人脸上都洋溢着吃了辣椒后的喜悦。现在，她在一个蛮好的g姓公司工作，和我们另一个同学，一个名字红彤彤的小胖子在一个部门，啊不！他减肥成功了，一个名字红彤彤的小瘦子。</p>
-<p>我想认认真真和你们告别，但是见面可能还是逗逼地笑笑煽不出什么情来，不如，写点什么吧。</p>
-<p>那我长话短说，你们要好好的。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;站地铁上发呆的时候思考了一下，其实很多特别琐碎平常的事情，一旦有了次数就会变得意义非凡。比如第一次走路，第十次结婚纪念日。&lt;/p&gt;
-&lt;p&gt;当然，第几次这种东西，慢慢我们就忘记了。于是，我们也学会了记下最后那几次。比如和某人的最后一面，程序里的最后一个bug（好吧，这种情况可
-    
-    </summary>
-    
-      <category term="长叨叨" scheme="http://yoursite.com/categories/lt/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>关于我爱你和你爱我</title>
-    <link href="http://yoursite.com/2017/02/12/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E5%85%B3%E4%BA%8E%E6%88%91%E7%88%B1%E4%BD%A0%E5%92%8C%E4%BD%A0%E7%88%B1%E6%88%91/"/>
-    <id>http://yoursite.com/2017/02/12/只言片语/关于我爱你和你爱我/</id>
-    <published>2017-02-12T08:23:58.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>有一个问题是，</p>
-<p>一个所有人都自私的世界和所有人都无私的世界是不是相同的。</p>
-<p>因为其实每个人都有人爱，每个人都被人爱。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;有一个问题是，&lt;/p&gt;
-&lt;p&gt;一个所有人都自私的世界和所有人都无私的世界是不是相同的。&lt;/p&gt;
-&lt;p&gt;因为其实每个人都有人爱，每个人都被人爱。&lt;/p&gt;
-
-    
-    </summary>
-    
-      <category term="短逼逼" scheme="http://yoursite.com/categories/st/"/>
-    
-    
-  </entry>
-  
-  <entry>
     <title>[CSS] - 基础 - 1</title>
     <link href="http://yoursite.com/2017/02/12/HTML5CSS/%5BCSS%5D%20-%20%E5%9F%BA%E7%A1%80%20-%201/"/>
     <id>http://yoursite.com/2017/02/12/HTML5CSS/[CSS] - 基础 - 1/</id>
     <published>2017-02-12T07:26:55.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
+    <updated>2018-11-27T02:45:08.991Z</updated>
     
-    <content type="html"><![CDATA[<p>1 css - cascading style sheets</p>
-<p>2 基本结构：选择器+声明</p>
-<p>3 内联式css，嵌入式css，外部式css（相同权值，就近）</p>
-<p>4 选择器</p>
-<p>1）标签选择器</p>
-<p>2）类选择器（多对多）</p>
-<p>3）ID选择器（一对一）</p>
-<p>4）子选择器&gt;</p>
-<p>5）后代选择器</p>
-<p>6）通用选择器*</p>
-<p>7）伪类选择符 （选择html中标签的某种状态，如a:hover - 兼容性问题）</p>
-<p>5 特性</p>
-<p>继承，特殊性（权值：标签1，类10，ID100），重要性</p>
-<p>6 字体</p>
-<p>1）font-family:”Microsoft Yahei”;</p>
-<p>2）font-style, font-weight</p>
-<p>3）text-decoration:underline; line-through</p>
-<p>4）text-indent</p>
-<p>5）line-height</p>
-<p>6）letter-spacing, word-spacing</p>
-<p>7）text-align</p>
-<p>7 块元素    display:block;</p>
-<p>1）&lt;div&gt;、&lt;p&gt;、&lt;h1&gt;…&lt;h6&gt;、&lt;ol&gt;、&lt;ul&gt;、&lt;dl&gt;、&lt;table&gt;、&lt;address&gt;、&lt;blockquote&gt; 、&lt;form&gt;</p>
-<p>2）特性：独占一行；宽度、高度、行高、顶底边距可设；宽度为设置为父元素100%</p>
-<p>8 内联元素    display:inline</p>
-<p>1）&lt;a&gt;、&lt;span&gt;、&lt;br&gt;、&lt;i&gt;、&lt;em&gt;、&lt;strong&gt;、&lt;label&gt;、&lt;q&gt;、&lt;var&gt;、&lt;cite&gt;、&lt;code&gt;</p>
-<p>2）特性：和其他内联元素在同行；宽度、高度、顶底边距不可设置；宽度为其包含文字或图片的宽度</p>
-<p>9 内联块元素    display:inline-block</p>
-<p>1）&lt;img&gt;、&lt;input&gt;</p>
-<p>2）特性：和内联/内联块元素同行，宽度、高度、顶底边距可设置</p>
-<p>10 盒模型</p>
-<p>1）块模型具有盒模型的特点。内外填充（padding，margin，border）</p>
-<p>2）border: {border-width border-style border-color} (dashed, dotted, solid)</p>
-<p>3）宽度：包括margin，border，padding，和content（内容）宽度</p>
-<p>11 布局模型</p>
-<p>1）流动模型（默认）：块元素自上而下，每个占一行，未分配情况下宽度100%；内联元素从左到右排布</p>
-<p>2）浮动模型：实现块元素同行显示，任何元素都可以加float。</p>
-<p>3）层模型：position:{relative,absolute,fixed} （absolute和fixed的相对位置是父元素中具有相对属性即position:relative的元素，找不到则是body）</p>
-<p>11 代码简写</p>
-<p>1）盒模型：margin，padding，上，右，下，左；上下，左右；上下左右</p>
-<p>2）颜色值缩写：#333，#369</p>
-<p>3）字体缩写：font-weight, font-style, font-family, font-size, line-height, font-variant 等可合为font（font-size/line-height, font-family 必填）</p>
-<p>12 字体大小</p>
-<p>1）像素：px css规定90px为1英寸</p>
-<p>2）em：以font-size为标准，如font-size:12px; text-indent:2em; 其中1em=12px，如果font-size是em则以父元素font-size为标准（responsive）</p>
-<p>3）百分比：仍然以font-size为标准计算</p>
-<p>13 水平居中</p>
-<p>1）内联：父元素text-align:center;实现</p>
-<p>2）定宽块元素：左右margin设为auto（定宽和块两个条件同时满足）</p>
-<p>3）不定宽块元素：1. 外部嵌套table，table设置左右margin为auto（table自适应内容宽度，相当于自动变成一个和内容长度相同的定宽块元素）；2. 改为内联元素（display:inline;）后设置父元素text-align:center（不增加无语义标签，但牺牲块元素一些特性）；3. 父元素float:left;position:relative;left:50%;子元素（需要居中的元素）position:relative;left:-50%;</p>
-<p>14 垂直居中</p>
-<p>1）父元素高度确定的单行文本：设置父元素height和line-height相同</p>
-<p>2）父元素高度确定的多行文本/包括图片：1. 加入table（包括td），即引入vertical-align:middle;到父元素，table默认已经带有这一属性，td需要设置高度，否则会自适应；2. 父级块元素添加display:table-cell;vertical-aligh:middle;（兼容性差ie6、ie7不支持）</p>
-<p>15 吊诡的float和position:absolute</p>
-<p>会导致该元素display变成inline-block，然后可以设置宽度、高度、行高、顶底边距等。</p>
-]]></content>
+    <content type="html"><![CDATA[<p>1 css - cascading style sheets</p><p>2 基本结构：选择器+声明</p><p>3 内联式css，嵌入式css，外部式css（相同权值，就近）</p><p>4 选择器</p><p>1）标签选择器</p><p>2）类选择器（多对多）</p><p>3）ID选择器（一对一）</p><p>4）子选择器&gt;</p><p>5）后代选择器</p><p>6）通用选择器*</p><p>7）伪类选择符 （选择html中标签的某种状态，如a:hover - 兼容性问题）</p><p>5 特性</p><p>继承，特殊性（权值：标签1，类10，ID100），重要性</p><p>6 字体</p><p>1）font-family:”Microsoft Yahei”;</p><p>2）font-style, font-weight</p><p>3）text-decoration:underline; line-through</p><p>4）text-indent</p><p>5）line-height</p><p>6）letter-spacing, word-spacing</p><p>7）text-align</p><p>7 块元素    display:block;</p><p>1）&lt;div&gt;、&lt;p&gt;、&lt;h1&gt;…&lt;h6&gt;、&lt;ol&gt;、&lt;ul&gt;、&lt;dl&gt;、&lt;table&gt;、&lt;address&gt;、&lt;blockquote&gt; 、&lt;form&gt;</p><p>2）特性：独占一行；宽度、高度、行高、顶底边距可设；宽度为设置为父元素100%</p><p>8 内联元素    display:inline</p><p>1）&lt;a&gt;、&lt;span&gt;、&lt;br&gt;、&lt;i&gt;、&lt;em&gt;、&lt;strong&gt;、&lt;label&gt;、&lt;q&gt;、&lt;var&gt;、&lt;cite&gt;、&lt;code&gt;</p><p>2）特性：和其他内联元素在同行；宽度、高度、顶底边距不可设置；宽度为其包含文字或图片的宽度</p><p>9 内联块元素    display:inline-block</p><p>1）&lt;img&gt;、&lt;input&gt;</p><p>2）特性：和内联/内联块元素同行，宽度、高度、顶底边距可设置</p><p>10 盒模型</p><p>1）块模型具有盒模型的特点。内外填充（padding，margin，border）</p><p>2）border: {border-width border-style border-color} (dashed, dotted, solid)</p><p>3）宽度：包括margin，border，padding，和content（内容）宽度</p><p>11 布局模型</p><p>1）流动模型（默认）：块元素自上而下，每个占一行，未分配情况下宽度100%；内联元素从左到右排布</p><p>2）浮动模型：实现块元素同行显示，任何元素都可以加float。</p><p>3）层模型：position:{relative,absolute,fixed} （absolute和fixed的相对位置是父元素中具有相对属性即position:relative的元素，找不到则是body）</p><p>11 代码简写</p><p>1）盒模型：margin，padding，上，右，下，左；上下，左右；上下左右</p><p>2）颜色值缩写：#333，#369</p><p>3）字体缩写：font-weight, font-style, font-family, font-size, line-height, font-variant 等可合为font（font-size/line-height, font-family 必填）</p><p>12 字体大小</p><p>1）像素：px css规定90px为1英寸</p><p>2）em：以font-size为标准，如font-size:12px; text-indent:2em; 其中1em=12px，如果font-size是em则以父元素font-size为标准（responsive）</p><p>3）百分比：仍然以font-size为标准计算</p><p>13 水平居中</p><p>1）内联：父元素text-align:center;实现</p><p>2）定宽块元素：左右margin设为auto（定宽和块两个条件同时满足）</p><p>3）不定宽块元素：1. 外部嵌套table，table设置左右margin为auto（table自适应内容宽度，相当于自动变成一个和内容长度相同的定宽块元素）；2. 改为内联元素（display:inline;）后设置父元素text-align:center（不增加无语义标签，但牺牲块元素一些特性）；3. 父元素float:left;position:relative;left:50%;子元素（需要居中的元素）position:relative;left:-50%;</p><p>14 垂直居中</p><p>1）父元素高度确定的单行文本：设置父元素height和line-height相同</p><p>2）父元素高度确定的多行文本/包括图片：1. 加入table（包括td），即引入vertical-align:middle;到父元素，table默认已经带有这一属性，td需要设置高度，否则会自适应；2. 父级块元素添加display:table-cell;vertical-aligh:middle;（兼容性差ie6、ie7不支持）</p><p>15 吊诡的float和position:absolute</p><p>会导致该元素display变成inline-block，然后可以设置宽度、高度、行高、顶底边距等。</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;1 css - cascading style sheets&lt;/p&gt;
+      
+      
+        &lt;p&gt;1 css - cascading style sheets&lt;/p&gt;
 &lt;p&gt;2 基本结构：选择器+声明&lt;/p&gt;
 &lt;p&gt;3 内联式css，嵌入式css，外部式css（相同权值，就近）&lt;/p&gt;
 &lt;p&gt;4 选择器&lt;/p&gt;
 &lt;p&gt;1）标签选择器&lt;/p&gt;
 &lt;p&gt;2）类选择器（多对多）
+      
     
     </summary>
     
@@ -1051,22 +456,19 @@ green; blue - this指针对于普通函数调用指向win
     <link href="http://yoursite.com/2017/02/12/%E9%9D%A2%E8%AF%95%E9%A2%98%E7%AC%94%E8%AE%B0/%E5%88%B7%E9%A2%98%E5%90%8E%E6%84%9F%E2%80%94%E2%80%94%E9%80%92%E5%BD%92/"/>
     <id>http://yoursite.com/2017/02/12/面试题笔记/刷题后感——递归/</id>
     <published>2017-02-11T16:20:41.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
+    <updated>2018-11-27T02:45:08.996Z</updated>
     
-    <content type="html"><![CDATA[<p>1 递归的次数和递归的深度问题。</p>
-<p>递归次数与每次划分后得到的分区处理顺序无关。</p>
-<p>对n个记录的线性表进行快速排序为减少算法递归深度，每次分区后先处理较短部分。</p>
-<p>以上是题目中总结的知识点，第一条比较好理解，假设1，2，3，4四个数字，第一次划分得到（1），（2，3，4），先处理1 ，返回，处理（2，3，4）-&gt;（2）返回，（3，4）-&gt;（3）返回，（4）返回，和先处理大分区是相同的划分过程，（1，2，3，4）-&gt;（1），（2，3，4）-&gt;（1），（2），（3，4）-&gt;（1），（2），（3），（4）再逐一返回。由这个划分大致可以看出大小分区的处理先后顺序并不影响递归的次数。</p>
-<p>递归深度可以理解为系统栈保存的深度（题目解析这么说的，摊手）。那同样是上面这个例子，两种处理方式就可以看出栈的深度不同，小分区，处理1时，栈中存一个元素（2，3，4），返回后再处理（2，3，4），同样（3，4）仅占用一个位置，这样栈的深度仅为1。第二种方式，处理（2，3，4）时，1入栈，-&gt;2入栈，处理（3，4）-&gt;3入栈-&gt;处理4，再依次返回，所以在处理4的时候栈的深度可以达到4。</p>
-<p>——以上为个人根据答案和讨论区内容的理解，如有瞎扯淡，望指正。</p>
-]]></content>
+    <content type="html"><![CDATA[<p>1 递归的次数和递归的深度问题。</p><p>递归次数与每次划分后得到的分区处理顺序无关。</p><p>对n个记录的线性表进行快速排序为减少算法递归深度，每次分区后先处理较短部分。</p><p>以上是题目中总结的知识点，第一条比较好理解，假设1，2，3，4四个数字，第一次划分得到（1），（2，3，4），先处理1 ，返回，处理（2，3，4）-&gt;（2）返回，（3，4）-&gt;（3）返回，（4）返回，和先处理大分区是相同的划分过程，（1，2，3，4）-&gt;（1），（2，3，4）-&gt;（1），（2），（3，4）-&gt;（1），（2），（3），（4）再逐一返回。由这个划分大致可以看出大小分区的处理先后顺序并不影响递归的次数。</p><p>递归深度可以理解为系统栈保存的深度（题目解析这么说的，摊手）。那同样是上面这个例子，两种处理方式就可以看出栈的深度不同，小分区，处理1时，栈中存一个元素（2，3，4），返回后再处理（2，3，4），同样（3，4）仅占用一个位置，这样栈的深度仅为1。第二种方式，处理（2，3，4）时，1入栈，-&gt;2入栈，处理（3，4）-&gt;3入栈-&gt;处理4，再依次返回，所以在处理4的时候栈的深度可以达到4。</p><p>——以上为个人根据答案和讨论区内容的理解，如有瞎扯淡，望指正。</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;1 递归的次数和递归的深度问题。&lt;/p&gt;
+      
+      
+        &lt;p&gt;1 递归的次数和递归的深度问题。&lt;/p&gt;
 &lt;p&gt;递归次数与每次划分后得到的分区处理顺序无关。&lt;/p&gt;
 &lt;p&gt;对n个记录的线性表进行快速排序为减少算法递归深度，每次分区后先处理较短部分。&lt;/p&gt;
 &lt;p&gt;以上是题目中总结的知识点，第一条比较好理解，假设1，2，3，4四个数字，第
+      
     
     </summary>
     
@@ -1078,29 +480,54 @@ green; blue - this指针对于普通函数调用指向win
   </entry>
   
   <entry>
-    <title>贪心</title>
-    <link href="http://yoursite.com/2017/02/11/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E8%B4%AA%E5%BF%83/"/>
-    <id>http://yoursite.com/2017/02/11/只言片语/贪心/</id>
-    <published>2017-02-11T15:16:43.000Z</published>
-    <updated>2017-03-10T13:46:46.000Z</updated>
+    <title>[HTML] - 基础 - 1</title>
+    <link href="http://yoursite.com/2017/02/11/HTML5CSS/HTML%20-%20%E5%9F%BA%E7%A1%80%20-%201/"/>
+    <id>http://yoursite.com/2017/02/11/HTML5CSS/HTML - 基础 - 1/</id>
+    <published>2017-02-11T15:01:16.000Z</published>
+    <updated>2018-11-27T02:45:08.991Z</updated>
     
-    <content type="html"><![CDATA[<p>发现了两个人小小的贪心，</p>
-<p>说想要某人出人头地，又希望他不必奔波劳碌。</p>
-<p>大概的愿望是某人能不费太大力气实现他那些要费很多力气的事情，</p>
-<p>差不多是希望他以后可以不劳而获且健康快乐。</p>
-<p>啧，真的是很贪心呀。</p>
-<p>&nbsp;</p>
-<p>——父母心</p>
-]]></content>
+    <content type="html"><![CDATA[<p>1 基本结构：</p><p>&lt;!DOCTYPE HTML&gt;</p><p>&lt;html&gt;</p><p>&lt;head&gt;&lt;/head&gt;</p><p>&lt;body&gt;&lt;/body&gt;</p><p>&lt;/html&gt;</p><p>2 head:</p><p>&lt;head&gt;</p><p>&lt;title&gt;&lt;/title&gt;</p><p>&lt;meta&gt;</p><p>&lt;link&gt;</p><p>&lt;style&gt;&lt;/style&gt;</p><p>&lt;script&gt;&lt;/script&gt;</p><p>&lt;/head&gt;</p><p>3 语义化</p><p>1）容易被搜索引擎理解、收录（SEO）</p><p>2）屏幕阅读器读出内容</p><p>4 标签</p><p>1）&lt;p&gt;&lt;/p&gt;</p><p>2) &lt;hx&gt;&lt;/hx&gt;</p><p>3) <em>&lt;em&gt;&lt;/em&gt;</em> <strong>&lt;strong&gt;&lt;/strong&gt;</strong></p><p>4) &lt;span&gt;&lt;/span&gt; (没有语义，只是作为单独的样式）</p><p>5) &lt;q&gt;&lt;/q&gt; &lt;blockquote&gt;&lt;/blockquote&gt;</p><p>6) &lt;br /&gt; (写法：xhtml1.0，空标签：&lt;hr /&gt;, &lt;img /&gt;,&lt;input /&gt;）</p><p>7) &amp;nbsp;</p><p>8) &lt;hr /&gt;</p><p>9) &lt;address&gt;&lt;/address&gt;</p><p>10) &lt;code&gt;&lt;/code&gt; &lt;pre&gt;&lt;/pre&gt;</p><p>11) &lt;ul&gt;&lt;li&gt;&lt;/li&gt;&lt;/ul&gt;     &lt;ol&gt;&lt;li&gt;&lt;/li&gt;&lt;/ol&gt;</p><p>12) &lt;div&gt;&lt;/div&gt; 作为一个容器，区分一个逻辑部分</p><p>13) &lt;table summary=””&gt;</p><p>&lt;caption&gt;&lt;/caption&gt;</p><p>&lt;tbody&gt;</p><p>&lt;tr&gt;</p><p>&lt;th&gt;&lt;/th&gt;</p><p>&lt;/tr&gt;</p><p>&lt;tr&gt;</p><p>&lt;td&gt;</p><p>&lt;/td&gt;</p><p>&lt;/tr&gt;</p><p>&lt;/tbody&gt;</p><p>&lt;/table&gt;</p><p>（tbody 加载完毕显示全部，summary-语义）</p><p>14) &lt;a href=”” title=”” target=”_blank”&gt;&lt;/a&gt;</p><p>15) href=”mailto:<a href="mailto:yy@gmail.com" target="_blank" rel="noopener">yy@gmail.com</a>?cc=&amp;bcc=&amp;subject=&amp;body=”</p><p>16) &lt;img src=”” title=”” alt=”” /&gt;</p><p>17) &lt;form method=”” action=””&gt;&lt;/form&gt;</p><p>19) &lt;input type=”” name=”” /&gt;</p><p>20) &lt;textarea cols=”” rows=””&gt;&lt;/textarea&gt;</p><p>21) &lt;select&gt;&lt;option&gt;&lt;/option&gt;&lt;/select&gt;</p><p>22) type=”submit” type=”reset”</p><p>23) &lt;label for=””&gt;&lt;/label&gt; （和对应input的id值相同）</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;发现了两个人小小的贪心，&lt;/p&gt;
-&lt;p&gt;说想要某人出人头地，又希望他不必奔波劳碌。&lt;/p&gt;
-&lt;p&gt;大概的愿望是某人能不费太大力气实现他那些要费很多力气的事情，&lt;/p&gt;
-&lt;p&gt;差不多是希望他以后可以不劳而获且健康快乐。&lt;/p&gt;
-&lt;p&gt;啧，真的是很贪心呀。&lt;/p&gt;
-&lt;p&gt;&amp;nb
+      
+      
+        &lt;p&gt;1 基本结构：&lt;/p&gt;
+&lt;p&gt;&amp;lt;!DOCTYPE HTML&amp;gt;&lt;/p&gt;
+&lt;p&gt;&amp;lt;html&amp;gt;&lt;/p&gt;
+&lt;p&gt;&amp;lt;head&amp;gt;&amp;lt;/head&amp;gt;&lt;/p&gt;
+&lt;p&gt;&amp;lt;body&amp;gt;&amp;lt;/body&amp;gt;&lt;/p&gt;
+&lt;p&gt;&amp;lt;/ht
+      
+    
+    </summary>
+    
+      <category term="学海无涯我游啊游" scheme="http://yoursite.com/categories/tech/"/>
+    
+      <category term="HTML/css（HTML5/css3)" scheme="http://yoursite.com/categories/tech/htmlcss/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>关于他们所说的必然</title>
+    <link href="http://yoursite.com/2017/02/11/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E5%85%B3%E4%BA%8E%E4%BB%96%E4%BB%AC%E6%89%80%E8%AF%B4%E7%9A%84%E5%BF%85%E7%84%B6/"/>
+    <id>http://yoursite.com/2017/02/11/只言片语/关于他们所说的必然/</id>
+    <published>2017-02-11T01:51:22.000Z</published>
+    <updated>2018-11-27T02:45:08.993Z</updated>
+    
+    <content type="html"><![CDATA[<p>所有预言不过是一次对被预测者的攻心。</p><p>不管你信与不信，愿不愿意，你的意识、潜意识都藏起了这个预言的影子，</p><p>像是一粒极不起眼的种子，捕风捉影，茁壮成长。</p><p>未来某一天，它就长出一棵树，它就变成一片海，</p><p>让你看着这山川河流，浩瀚宇宙而敬畏，而臣服。</p><p>然后，你会听见人们铿锵的低语</p><p>看啊，果不其然。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;所有预言不过是一次对被预测者的攻心。&lt;/p&gt;
+&lt;p&gt;不管你信与不信，愿不愿意，你的意识、潜意识都藏起了这个预言的影子，&lt;/p&gt;
+&lt;p&gt;像是一粒极不起眼的种子，捕风捉影，茁壮成长。&lt;/p&gt;
+&lt;p&gt;未来某一天，它就长出一棵树，它就变成一片海，&lt;/p&gt;
+&lt;p&gt;让你看着这山川河流，
+      
     
     </summary>
     

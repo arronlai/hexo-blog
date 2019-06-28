@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="赤晨" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="前端性能优化 标题可能起的有点大，这次是实践是对目前在做的项目的一次性能调优，但是也没有尝试所有方式。 起因是我们的网站被客户吐槽慢。。。 然后开始了性能调优。 gzip实践服务器端的优化是首先想到的方法，因为这个优化的力度是前端code层面优化比不了的。项目是Angular6的，打包之后用–stats-json和webpack-bundle-analyzer可以看到目前打包之后各个js的大小以及">
+<meta property="og:type" content="article">
+<meta property="og:title" content="（回顾）性能调优实践 gzip, brotli, https, angular">
+<meta property="og:url" content="http://yoursite.com/2019/06/28/性能调优实践/index.html">
+<meta property="og:site_name" content="赤晨">
+<meta property="og:description" content="前端性能优化 标题可能起的有点大，这次是实践是对目前在做的项目的一次性能调优，但是也没有尝试所有方式。 起因是我们的网站被客户吐槽慢。。。 然后开始了性能调优。 gzip实践服务器端的优化是首先想到的方法，因为这个优化的力度是前端code层面优化比不了的。项目是Angular6的，打包之后用–stats-json和webpack-bundle-analyzer可以看到目前打包之后各个js的大小以及">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://on3eu0vfd.bkt.clouddn.com/static/images/performance190627/performance-bootstrap-brotli.png">
+<meta property="og:updated_time" content="2019-06-28T06:17:53.867Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="（回顾）性能调优实践 gzip, brotli, https, angular">
+<meta name="twitter:description" content="前端性能优化 标题可能起的有点大，这次是实践是对目前在做的项目的一次性能调优，但是也没有尝试所有方式。 起因是我们的网站被客户吐槽慢。。。 然后开始了性能调优。 gzip实践服务器端的优化是首先想到的方法，因为这个优化的力度是前端code层面优化比不了的。项目是Angular6的，打包之后用–stats-json和webpack-bundle-analyzer可以看到目前打包之后各个js的大小以及">
+<meta name="twitter:image" content="http://on3eu0vfd.bkt.clouddn.com/static/images/performance190627/performance-bootstrap-brotli.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/06/28/性能调优实践/">
+
+
+
+
+
+  <title>（回顾）性能调优实践 gzip, brotli, https, angular | 赤晨</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">赤晨</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">上帝没有给我们想要的，他给我们更好的。</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/28/性能调优实践/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Arron Lai">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="赤晨">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">（回顾）性能调优实践 gzip, brotli, https, angular</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-28T14:17:53+08:00">
+                2019-06-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前端性能优化</p>
+<p>标题可能起的有点大，这次是实践是对目前在做的项目的一次性能调优，但是也没有尝试所有方式。</p>
+<p>起因是我们的网站被客户吐槽慢。。。</p>
+<p>然后开始了性能调优。</p>
+<h1 id="gzip实践"><a href="#gzip实践" class="headerlink" title="gzip实践"></a>gzip实践</h1><p>服务器端的优化是首先想到的方法，因为这个优化的力度是前端code层面优化比不了的。项目是Angular6的，打包之后用–stats-json和webpack-bundle-analyzer可以看到目前打包之后各个js的大小以及gzip压缩之后的大小，gzip压一压，最少能小一半，有些能压到十分之一。<br>gzip的原理是在服务器进行配置，对制定类型的文件采用gzip压缩，客户端在获得传输的数据之后再进行解压。通过这个方式可以减少文件传输的时间，但是会增加压缩和解压的时间，所以对于一些很小的文件是不建议启用gzip的（服务器配置的时候也可以设置文件大小）。<br>配置大概是</p>
+<p><code>LoadModule deflate_module modules/mod_deflate.so
+AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript</code></p>
+<p>在httpd.conf开启mod_deflate，然后选一下文件类型。</p>
+<p>本地build了一个docker测试 =&gt; 快得一批！</p>
+<p>部署到服务器打开网站 =&gt; <strong>没得卵用</strong>！又改了几次配置，部署到服务器上都是一样。</p>
+<p>开始怀疑gzip，开始怀疑服务器，开始怀疑自己。</p>
+<ul>
+<li>问题：本地测试gzip生效，但服务器上相同配置gzip后不生效。</li>
+<li>思路：服务器的机器和本地机器肯定有不同，但是两边最终都是build出来docker image，image内的环境配置和安装的软件都是一样的，搜了“gzip不生效”找到的基本是怎么配置gzip -&gt; 两边不同的还有协议，服务器端proxy设置了强制ssl，所有访问都是https本地是<a href="http://localhost，搜“gzip" target="_blank" rel="noopener">http://localhost，搜“gzip</a> https 不生效”找到答案：因为有BREACH（大致是ssl会对文件加密，以保护文件内容不被他人获取和篡改）但是如果引入gzip，hackers可以通过victim的机器发送大量明文请求和压缩算法(gzip 压缩在 HTTP 中的工作方式是这样：如果在响应中有同一个字符串的多个实例，第一个实例将被保留，而其余实例将被替换成指向第一个实例位置的短引用，以减少响应消息的体积)来破解文件内容。=&gt; SSL和gzip不能同时使用（搜索时候找到了一个关于apache的SSLCompression的配置，进行了尝试，无果）</li>
+</ul>
+<h1 id="Brotli实践"><a href="#Brotli实践" class="headerlink" title="Brotli实践"></a>Brotli实践</h1><ul>
+<li>问题：SSL和gzip不能同时使用，对于我们现有site SSL不能disable =&gt; 无法实现服务器端优化？</li>
+<li>思路：(看看别人是怎么做的）-&gt; bootstrap，load很快，它也是https，接着看了network，<img title="bootstrap_brotli" alt="bootstrap_brotli" src="http://on3eu0vfd.bkt.clouddn.com/static/images/performance190627/performance-bootstrap-brotli.png"></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/27/算法/最长回文子串/" rel="next" title="最长回文子串">
+                <i class="fa fa-chevron-left"></i> 最长回文子串
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Arron Lai</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#gzip实践"><span class="nav-number">1.</span> <span class="nav-text">gzip实践</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Brotli实践"><span class="nav-number">2.</span> <span class="nav-text">Brotli实践</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arron Lai</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
