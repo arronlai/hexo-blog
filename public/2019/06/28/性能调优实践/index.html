@@ -88,12 +88,13 @@
 <meta property="og:site_name" content="赤晨">
 <meta property="og:description" content="前端性能优化 标题可能起的有点大，这次是实践是对目前在做的项目的一次性能调优，但是也没有尝试所有方式。 起因是我们的网站被客户吐槽慢。。。 然后开始了性能调优。 gzip实践服务器端的优化是首先想到的方法，因为这个优化的力度是前端code层面优化比不了的。项目是Angular6的，打包之后用–stats-json和webpack-bundle-analyzer可以看到目前打包之后各个js的大小以及">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://on3eu0vfd.bkt.clouddn.com/static/images/performance190627/performance-bootstrap-brotli.png">
-<meta property="og:updated_time" content="2019-06-28T06:17:53.867Z">
+<meta property="og:image" content="https://hexo-photos.oss-cn-shanghai.aliyuncs.com/performance-bootstrap-brotli.png?Expires=1563183577&OSSAccessKeyId=TMP.hVC5Sr5RYQU2KYEvHgB5CwmJzF2Lo8ZpYKmoA9wTfpnJo2iNaMzsEWyfTNRaYxMA7bSRENR1mYdjEhBo6YVrRSyfkLheN9acLDBcqFnbGxFZGVBJTyY3nZfRZWy2Fw.tmp&Signature=L8XbNXEuEhgT1CjZ8B0XsSWqqSE%3D">
+<meta property="og:image" content="https://hexo-photos.oss-cn-shanghai.aliyuncs.com/performance-mine.png?Expires=1563186493&OSSAccessKeyId=TMP.hVC5Sr5RYQU2KYEvHgB5CwmJzF2Lo8ZpYKmoA9wTfpnJo2iNaMzsEWyfTNRaYxMA7bSRENR1mYdjEhBo6YVrRSyfkLheN9acLDBcqFnbGxFZGVBJTyY3nZfRZWy2Fw.tmp&Signature=ekTokdD6FZRBjqG%2BjBz%2BARWjLiw%3D">
+<meta property="og:updated_time" content="2019-07-15T09:31:48.762Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="（回顾）性能调优实践 gzip, brotli, https, angular">
 <meta name="twitter:description" content="前端性能优化 标题可能起的有点大，这次是实践是对目前在做的项目的一次性能调优，但是也没有尝试所有方式。 起因是我们的网站被客户吐槽慢。。。 然后开始了性能调优。 gzip实践服务器端的优化是首先想到的方法，因为这个优化的力度是前端code层面优化比不了的。项目是Angular6的，打包之后用–stats-json和webpack-bundle-analyzer可以看到目前打包之后各个js的大小以及">
-<meta name="twitter:image" content="http://on3eu0vfd.bkt.clouddn.com/static/images/performance190627/performance-bootstrap-brotli.png">
+<meta name="twitter:image" content="https://hexo-photos.oss-cn-shanghai.aliyuncs.com/performance-bootstrap-brotli.png?Expires=1563183577&OSSAccessKeyId=TMP.hVC5Sr5RYQU2KYEvHgB5CwmJzF2Lo8ZpYKmoA9wTfpnJo2iNaMzsEWyfTNRaYxMA7bSRENR1mYdjEhBo6YVrRSyfkLheN9acLDBcqFnbGxFZGVBJTyY3nZfRZWy2Fw.tmp&Signature=L8XbNXEuEhgT1CjZ8B0XsSWqqSE%3D">
 
 
 
@@ -296,6 +297,39 @@
           </span>
 
           
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">学海无涯我游啊游</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/tech/oth/" itemprop="url" rel="index">
+                    <span itemprop="name">其他</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -345,8 +379,23 @@ AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javasc
 </ul>
 <h1 id="Brotli实践"><a href="#Brotli实践" class="headerlink" title="Brotli实践"></a>Brotli实践</h1><ul>
 <li>问题：SSL和gzip不能同时使用，对于我们现有site SSL不能disable =&gt; 无法实现服务器端优化？</li>
-<li>思路：(看看别人是怎么做的）-&gt; bootstrap，load很快，它也是https，接着看了network，<img title="bootstrap_brotli" alt="bootstrap_brotli" src="http://on3eu0vfd.bkt.clouddn.com/static/images/performance190627/performance-bootstrap-brotli.png"></li>
+<li>思路：(看看别人是怎么做的）-&gt; bootstrap，load很快，它也是https，接着看了network，<img src="https://hexo-photos.oss-cn-shanghai.aliyuncs.com/performance-bootstrap-brotli.png?Expires=1563183577&amp;OSSAccessKeyId=TMP.hVC5Sr5RYQU2KYEvHgB5CwmJzF2Lo8ZpYKmoA9wTfpnJo2iNaMzsEWyfTNRaYxMA7bSRENR1mYdjEhBo6YVrRSyfkLheN9acLDBcqFnbGxFZGVBJTyY3nZfRZWy2Fw.tmp&amp;Signature=L8XbNXEuEhgT1CjZ8B0XsSWqqSE%3D" alt="Performance bootstrap">文件被压缩过-&gt;继续看response头-&gt; 发现：content-encoding: br-&gt;搜索“content-encoding br”-&gt;找到Brotli是一种类似gzip的压缩算法，接下来就是在server上进行Brotli的配置。</li>
 </ul>
+<ol>
+<li>首先要在httpd.conf配置当中打开mod_brotli，这一步有点类似于gzip打开mod_deflate，然后配置需要压缩的文件类型，配置大概长这样：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"># Load brotli module</span><br><span class="line">LoadModule brotli_module modules/mod_brotli.so</span><br><span class="line"></span><br><span class="line">&lt;IfModule brotli_module&gt;</span><br><span class="line">  # Output filter</span><br><span class="line">  AddOutputFilterByType BROTLI text/plain text/css text/xml text/javascript application/javascript</span><br><span class="line"></span><br><span class="line">  # SetOutputFilter BROTLI</span><br><span class="line">  # SetEnvIfNoCase Request_URI \.txt$ no-br</span><br><span class="line"></span><br><span class="line">  # Compression</span><br><span class="line">  ## BrotliCompressionLevel: 0-11 (default: 11)</span><br><span class="line">  BrotliCompressionLevel 10</span><br><span class="line"></span><br><span class="line">  ## BrotliWindowSize: 10-24 (default: 22)</span><br><span class="line">  BrotliWindowSize 22</span><br><span class="line"></span><br><span class="line">  # Specifies how to change the ETag header when the response is compressed</span><br><span class="line">  ## BrotliAlterEtag: AddSuffix, NoChange, Remove (default: AddSuffix)</span><br><span class="line">  BrotliAlterEtag AddSuffix</span><br><span class="line"></span><br><span class="line">  # Filter note</span><br><span class="line">  BrotliFilterNote Input  brotli_in</span><br><span class="line">  BrotliFilterNote Output brotli_out</span><br><span class="line">  BrotliFilterNote Ratio  brotli_ratio</span><br><span class="line"></span><br><span class="line">  LogFormat &apos;&quot;%r&quot; %&#123;brotli_out&#125;n/%&#123;brotli_in&#125;n (%&#123;brotli_ratio&#125;n)&apos; brotli</span><br><span class="line">  CustomLog logs/access_log brotli</span><br><span class="line">&lt;/IfModule&gt;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>try -&gt; not work -&gt; docker exec -it container /bin/bash 检查了一下/usr/local/apache2/module里面没有这个mod -&gt; 所以首先要先build出来这个mod</p>
+<ol>
+<li>修改Dockerfile内的build脚本<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">RUN git clone --depth=1 --recursive https://github.com/kjdev/apache-mod-brotli.git</span><br><span class="line">RUN cd ./apache-mod-brotli &amp;&amp; sh ./autogen.sh &amp;&amp; ./configure &amp;&amp; make &amp;&amp; install -p -m 755 -D .libs/mod_brotli.so /usr/local/apache2/modules/mod_brotli.so</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>主要是这两句命令，大概就是clone了brotli的代码然后build出来需要的mod。<br>中间碰到一个坑，apt-get install的时候需要修改source.list，否则jessie-backports会出错。因为不太懂这个配置文件，中间查了很多关于”Failed to fetch jessie backports repository”这个错的文章，照着改了n多次。最后试下来加了这几句：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">RUN sed -i &apos;/deb http:\/\/deb.debian.org\/debian jessie-updates main/d&apos; /etc/apt/sources.list</span><br><span class="line">RUN echo &apos;deb http://archive.debian.org/debian jessie-backports main&apos; &gt; /etc/apt/sources.list.d/backports.list</span><br><span class="line">RUN echo &apos;deb-src http://archive.debian.org/debian jessie-backports main&apos; &gt; /etc/apt/sources.list.d/backports.list</span><br><span class="line">RUN apt-get -o Acquire::Check-Valid-Until=false update</span><br></pre></td></tr></table></figure></p>
+<ol start="3">
+<li>安装必须软件<br>这步就比较简单，build时候如果报错了把需要的软件装一下。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;git&quot;]</span><br><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;make&quot;]</span><br><span class="line"></span><br><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;autotools-dev&quot;]</span><br><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;automake&quot;]</span><br><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;libtool&quot;]</span><br><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;apache2-dev&quot;]</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>到这里Brotli这个module就配置好了。实测网站首页load时间缩短了一半以上。<br><img src="https://hexo-photos.oss-cn-shanghai.aliyuncs.com/performance-mine.png?Expires=1563186493&amp;OSSAccessKeyId=TMP.hVC5Sr5RYQU2KYEvHgB5CwmJzF2Lo8ZpYKmoA9wTfpnJo2iNaMzsEWyfTNRaYxMA7bSRENR1mYdjEhBo6YVrRSyfkLheN9acLDBcqFnbGxFZGVBJTyY3nZfRZWy2Fw.tmp&amp;Signature=ekTokdD6FZRBjqG%2BjBz%2BARWjLiw%3D" alt="performance result"></p>
 
       
     </div>
@@ -371,8 +420,8 @@ AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javasc
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/11/27/算法/最长回文子串/" rel="next" title="最长回文子串">
-                <i class="fa fa-chevron-left"></i> 最长回文子串
+              <a href="/2019/03/15/只言片语/coco/" rel="next" title="COCO 寻梦环游记">
+                <i class="fa fa-chevron-left"></i> COCO 寻梦环游记
               </a>
             
           </div>
@@ -456,7 +505,7 @@ AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javasc
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

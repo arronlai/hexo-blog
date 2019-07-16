@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2019-06-28T06:17:53.867Z</updated>
+  <updated>2019-07-15T09:31:48.762Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,9 +21,9 @@
     <link href="http://yoursite.com/2019/06/28/%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E5%AE%9E%E8%B7%B5/"/>
     <id>http://yoursite.com/2019/06/28/性能调优实践/</id>
     <published>2019-06-28T06:17:53.000Z</published>
-    <updated>2019-06-28T06:17:53.867Z</updated>
+    <updated>2019-07-15T09:31:48.762Z</updated>
     
-    <content type="html"><![CDATA[<p>前端性能优化</p><p>标题可能起的有点大，这次是实践是对目前在做的项目的一次性能调优，但是也没有尝试所有方式。</p><p>起因是我们的网站被客户吐槽慢。。。</p><p>然后开始了性能调优。</p><h1 id="gzip实践"><a href="#gzip实践" class="headerlink" title="gzip实践"></a>gzip实践</h1><p>服务器端的优化是首先想到的方法，因为这个优化的力度是前端code层面优化比不了的。项目是Angular6的，打包之后用–stats-json和webpack-bundle-analyzer可以看到目前打包之后各个js的大小以及gzip压缩之后的大小，gzip压一压，最少能小一半，有些能压到十分之一。<br>gzip的原理是在服务器进行配置，对制定类型的文件采用gzip压缩，客户端在获得传输的数据之后再进行解压。通过这个方式可以减少文件传输的时间，但是会增加压缩和解压的时间，所以对于一些很小的文件是不建议启用gzip的（服务器配置的时候也可以设置文件大小）。<br>配置大概是</p><p><code>LoadModule deflate_module modules/mod_deflate.soAddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript</code></p><p>在httpd.conf开启mod_deflate，然后选一下文件类型。</p><p>本地build了一个docker测试 =&gt; 快得一批！</p><p>部署到服务器打开网站 =&gt; <strong>没得卵用</strong>！又改了几次配置，部署到服务器上都是一样。</p><p>开始怀疑gzip，开始怀疑服务器，开始怀疑自己。</p><ul><li>问题：本地测试gzip生效，但服务器上相同配置gzip后不生效。</li><li>思路：服务器的机器和本地机器肯定有不同，但是两边最终都是build出来docker image，image内的环境配置和安装的软件都是一样的，搜了“gzip不生效”找到的基本是怎么配置gzip -&gt; 两边不同的还有协议，服务器端proxy设置了强制ssl，所有访问都是https本地是<a href="http://localhost，搜“gzip" target="_blank" rel="noopener">http://localhost，搜“gzip</a> https 不生效”找到答案：因为有BREACH（大致是ssl会对文件加密，以保护文件内容不被他人获取和篡改）但是如果引入gzip，hackers可以通过victim的机器发送大量明文请求和压缩算法(gzip 压缩在 HTTP 中的工作方式是这样：如果在响应中有同一个字符串的多个实例，第一个实例将被保留，而其余实例将被替换成指向第一个实例位置的短引用，以减少响应消息的体积)来破解文件内容。=&gt; SSL和gzip不能同时使用（搜索时候找到了一个关于apache的SSLCompression的配置，进行了尝试，无果）</li></ul><h1 id="Brotli实践"><a href="#Brotli实践" class="headerlink" title="Brotli实践"></a>Brotli实践</h1><ul><li>问题：SSL和gzip不能同时使用，对于我们现有site SSL不能disable =&gt; 无法实现服务器端优化？</li><li>思路：(看看别人是怎么做的）-&gt; bootstrap，load很快，它也是https，接着看了network，<img title="bootstrap_brotli" alt="bootstrap_brotli" src="http://on3eu0vfd.bkt.clouddn.com/static/images/performance190627/performance-bootstrap-brotli.png"></li></ul>]]></content>
+    <content type="html"><![CDATA[<p>前端性能优化</p><p>标题可能起的有点大，这次是实践是对目前在做的项目的一次性能调优，但是也没有尝试所有方式。</p><p>起因是我们的网站被客户吐槽慢。。。</p><p>然后开始了性能调优。</p><h1 id="gzip实践"><a href="#gzip实践" class="headerlink" title="gzip实践"></a>gzip实践</h1><p>服务器端的优化是首先想到的方法，因为这个优化的力度是前端code层面优化比不了的。项目是Angular6的，打包之后用–stats-json和webpack-bundle-analyzer可以看到目前打包之后各个js的大小以及gzip压缩之后的大小，gzip压一压，最少能小一半，有些能压到十分之一。<br>gzip的原理是在服务器进行配置，对制定类型的文件采用gzip压缩，客户端在获得传输的数据之后再进行解压。通过这个方式可以减少文件传输的时间，但是会增加压缩和解压的时间，所以对于一些很小的文件是不建议启用gzip的（服务器配置的时候也可以设置文件大小）。<br>配置大概是</p><p><code>LoadModule deflate_module modules/mod_deflate.soAddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript</code></p><p>在httpd.conf开启mod_deflate，然后选一下文件类型。</p><p>本地build了一个docker测试 =&gt; 快得一批！</p><p>部署到服务器打开网站 =&gt; <strong>没得卵用</strong>！又改了几次配置，部署到服务器上都是一样。</p><p>开始怀疑gzip，开始怀疑服务器，开始怀疑自己。</p><ul><li>问题：本地测试gzip生效，但服务器上相同配置gzip后不生效。</li><li>思路：服务器的机器和本地机器肯定有不同，但是两边最终都是build出来docker image，image内的环境配置和安装的软件都是一样的，搜了“gzip不生效”找到的基本是怎么配置gzip -&gt; 两边不同的还有协议，服务器端proxy设置了强制ssl，所有访问都是https本地是<a href="http://localhost，搜“gzip" target="_blank" rel="noopener">http://localhost，搜“gzip</a> https 不生效”找到答案：因为有BREACH（大致是ssl会对文件加密，以保护文件内容不被他人获取和篡改）但是如果引入gzip，hackers可以通过victim的机器发送大量明文请求和压缩算法(gzip 压缩在 HTTP 中的工作方式是这样：如果在响应中有同一个字符串的多个实例，第一个实例将被保留，而其余实例将被替换成指向第一个实例位置的短引用，以减少响应消息的体积)来破解文件内容。=&gt; SSL和gzip不能同时使用（搜索时候找到了一个关于apache的SSLCompression的配置，进行了尝试，无果）</li></ul><h1 id="Brotli实践"><a href="#Brotli实践" class="headerlink" title="Brotli实践"></a>Brotli实践</h1><ul><li>问题：SSL和gzip不能同时使用，对于我们现有site SSL不能disable =&gt; 无法实现服务器端优化？</li><li>思路：(看看别人是怎么做的）-&gt; bootstrap，load很快，它也是https，接着看了network，<img src="https://hexo-photos.oss-cn-shanghai.aliyuncs.com/performance-bootstrap-brotli.png?Expires=1563183577&amp;OSSAccessKeyId=TMP.hVC5Sr5RYQU2KYEvHgB5CwmJzF2Lo8ZpYKmoA9wTfpnJo2iNaMzsEWyfTNRaYxMA7bSRENR1mYdjEhBo6YVrRSyfkLheN9acLDBcqFnbGxFZGVBJTyY3nZfRZWy2Fw.tmp&amp;Signature=L8XbNXEuEhgT1CjZ8B0XsSWqqSE%3D" alt="Performance bootstrap">文件被压缩过-&gt;继续看response头-&gt; 发现：content-encoding: br-&gt;搜索“content-encoding br”-&gt;找到Brotli是一种类似gzip的压缩算法，接下来就是在server上进行Brotli的配置。</li></ul><ol><li>首先要在httpd.conf配置当中打开mod_brotli，这一步有点类似于gzip打开mod_deflate，然后配置需要压缩的文件类型，配置大概长这样：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"># Load brotli module</span><br><span class="line">LoadModule brotli_module modules/mod_brotli.so</span><br><span class="line"></span><br><span class="line">&lt;IfModule brotli_module&gt;</span><br><span class="line">  # Output filter</span><br><span class="line">  AddOutputFilterByType BROTLI text/plain text/css text/xml text/javascript application/javascript</span><br><span class="line"></span><br><span class="line">  # SetOutputFilter BROTLI</span><br><span class="line">  # SetEnvIfNoCase Request_URI \.txt$ no-br</span><br><span class="line"></span><br><span class="line">  # Compression</span><br><span class="line">  ## BrotliCompressionLevel: 0-11 (default: 11)</span><br><span class="line">  BrotliCompressionLevel 10</span><br><span class="line"></span><br><span class="line">  ## BrotliWindowSize: 10-24 (default: 22)</span><br><span class="line">  BrotliWindowSize 22</span><br><span class="line"></span><br><span class="line">  # Specifies how to change the ETag header when the response is compressed</span><br><span class="line">  ## BrotliAlterEtag: AddSuffix, NoChange, Remove (default: AddSuffix)</span><br><span class="line">  BrotliAlterEtag AddSuffix</span><br><span class="line"></span><br><span class="line">  # Filter note</span><br><span class="line">  BrotliFilterNote Input  brotli_in</span><br><span class="line">  BrotliFilterNote Output brotli_out</span><br><span class="line">  BrotliFilterNote Ratio  brotli_ratio</span><br><span class="line"></span><br><span class="line">  LogFormat &apos;&quot;%r&quot; %&#123;brotli_out&#125;n/%&#123;brotli_in&#125;n (%&#123;brotli_ratio&#125;n)&apos; brotli</span><br><span class="line">  CustomLog logs/access_log brotli</span><br><span class="line">&lt;/IfModule&gt;</span><br></pre></td></tr></table></figure></li></ol><p>try -&gt; not work -&gt; docker exec -it container /bin/bash 检查了一下/usr/local/apache2/module里面没有这个mod -&gt; 所以首先要先build出来这个mod</p><ol><li>修改Dockerfile内的build脚本<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">RUN git clone --depth=1 --recursive https://github.com/kjdev/apache-mod-brotli.git</span><br><span class="line">RUN cd ./apache-mod-brotli &amp;&amp; sh ./autogen.sh &amp;&amp; ./configure &amp;&amp; make &amp;&amp; install -p -m 755 -D .libs/mod_brotli.so /usr/local/apache2/modules/mod_brotli.so</span><br></pre></td></tr></table></figure></li></ol><p>主要是这两句命令，大概就是clone了brotli的代码然后build出来需要的mod。<br>中间碰到一个坑，apt-get install的时候需要修改source.list，否则jessie-backports会出错。因为不太懂这个配置文件，中间查了很多关于”Failed to fetch jessie backports repository”这个错的文章，照着改了n多次。最后试下来加了这几句：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">RUN sed -i &apos;/deb http:\/\/deb.debian.org\/debian jessie-updates main/d&apos; /etc/apt/sources.list</span><br><span class="line">RUN echo &apos;deb http://archive.debian.org/debian jessie-backports main&apos; &gt; /etc/apt/sources.list.d/backports.list</span><br><span class="line">RUN echo &apos;deb-src http://archive.debian.org/debian jessie-backports main&apos; &gt; /etc/apt/sources.list.d/backports.list</span><br><span class="line">RUN apt-get -o Acquire::Check-Valid-Until=false update</span><br></pre></td></tr></table></figure></p><ol start="3"><li>安装必须软件<br>这步就比较简单，build时候如果报错了把需要的软件装一下。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;git&quot;]</span><br><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;make&quot;]</span><br><span class="line"></span><br><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;autotools-dev&quot;]</span><br><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;automake&quot;]</span><br><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;libtool&quot;]</span><br><span class="line">RUN [&quot;apt-get&quot;, &quot;install&quot;, &quot;-y&quot;, &quot;apache2-dev&quot;]</span><br></pre></td></tr></table></figure></li></ol><p>到这里Brotli这个module就配置好了。实测网站首页load时间缩短了一半以上。<br><img src="https://hexo-photos.oss-cn-shanghai.aliyuncs.com/performance-mine.png?Expires=1563186493&amp;OSSAccessKeyId=TMP.hVC5Sr5RYQU2KYEvHgB5CwmJzF2Lo8ZpYKmoA9wTfpnJo2iNaMzsEWyfTNRaYxMA7bSRENR1mYdjEhBo6YVrRSyfkLheN9acLDBcqFnbGxFZGVBJTyY3nZfRZWy2Fw.tmp&amp;Signature=ekTokdD6FZRBjqG%2BjBz%2BARWjLiw%3D" alt="performance result"></p>]]></content>
     
     <summary type="html">
     
@@ -37,6 +37,34 @@
       
     
     </summary>
+    
+      <category term="学海无涯我游啊游" scheme="http://yoursite.com/categories/tech/"/>
+    
+      <category term="其他" scheme="http://yoursite.com/categories/tech/oth/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>COCO 寻梦环游记</title>
+    <link href="http://yoursite.com/2019/03/15/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/coco/"/>
+    <id>http://yoursite.com/2019/03/15/只言片语/coco/</id>
+    <published>2019-03-15T08:51:34.000Z</published>
+    <updated>2019-07-15T09:32:38.001Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="COCO-寻梦环游记"><a href="#COCO-寻梦环游记" class="headerlink" title="COCO 寻梦环游记"></a>COCO 寻梦环游记</h2><p>终于二刷。</p><p>墨西哥，亡灵节，梦想，家人。故事远不止寻梦，但是中文的名字加上海报里的吉他很容易让人误解这是一个动画版的好声音故事。</p><p>米格，男主，蠢萌属性，歌神后代，鞋匠世家。故事基本都是围绕他展开，家庭内主要的矛盾也是在他身上爆发出来——米格喜欢唱歌，且唱的很好听（毕竟如果唱得难听故事也推不动，不过他家基因确实强，祖上好几代都禁止唱歌，到他这儿歌神基因还屹立不倒 :) &lt;- 来自音痴礼貌的围笑），但家里不让唱：大致的原因是，他的曾曾曾（几个曾来着）爷爷为了音乐出去唱巡回了，一直没有回来，于是曾曾曾祖母一个人把家庭撑了起来，而且发扬了鞋匠的技艺，逐渐米格家变成了世代制鞋的家族，而且由于这件事情曾曾曾祖母禁止家里有音乐出现，并把那个负心汉的照片丢掉，从家里除名了。于是米格的音乐梦想一直在地下进行，偷偷用吉他跟着他崇拜的歌神学。一直到亡灵节这一天他发现歌神是自己的那个曾曾曾祖父，于是他拿着吉他和家人说出了自己的梦想。</p><p>然并卵，吉他被砸了，小哭宝离家出走了。</p><p>之后米格偷取歌神的吉他要去参加比赛，却阴差阳错地来到了亡灵之地。他看到了无数亡灵，其中包括自己的家人。米格需要得到家人的祝福才能回到自己的世界，但是家人可以在祝福里加上任何条件。在他的曾曾曾祖母加上了不许米格碰音乐的条件之后，米格决定去找自己的曾曾曾爷爷——歌神（他以为的曾曾曾爷爷）。最后他发现歌神不是自己的曾曾曾爷爷，而是谋杀了曾曾曾爷爷并盗用他的词曲而成名的小人，而米格的曾曾曾爷爷是一直想通过万寿菊桥去看望女儿coco的诶里克，但因为家里没有供奉他的照片他无法通过，&lt;-这段讲出来有点乱，反正就是小米格认贼作父然后幡然悔悟了。</p><hr><p><strong><em>为了梦想，我可以放弃一切。</em></strong></p><p><strong><em>因为你不曾失去。</em></strong></p><p>第一次看的时候觉得米格为了自己的梦想一往无前很感人，但是这次居然开始觉得他有点熊，发生这个想法的点是在他怒吼自己曾曾曾祖母的时候：“我有自己的梦想，你这是在害我，你们从来不懂！”然后再一次逃离了自己的家人。仔细想想，能够以梦想的名义放弃一切的人往往没有失去过什么，他们没有经历食不果腹，没有操心什么柴米油盐，所以才能振振有词，大言不惭。后来听到了米格曾曾曾祖母唱歌更觉得心酸。是啊，梦想，热爱，我怎么会不懂。我也曾为歌唱忘食废寝，我知道月亮曾经代表谁的心，我也唱过四季和愁绪。可是终于有一天，睡意来袭，而我饥肠辘辘，我终于看见现实把跨不过的山海放在我面前，我终于妥协，和解，平静。其实，说得出“我可以为梦想放弃一切”的人到底是幸福的，至少你有一些什么可以放弃。</p><hr><p><strong><em>你可以不原谅他，但你不能忘了他。</em></strong></p><p>这句话是米格对曾曾曾祖母说的，劝说她帮助诶里克去抢回照片。一直以为爱的反面是恨，其实不是，爱的反面是遗忘。死去的人只能凭借我们的记忆再存在于这个世界这个设定真的很感人，听到只要coco忘记诶里克他就会从冥界消失也让人很难过，他在这一天假扮了无数人，讨好了无数人，为了去见自己的女儿一面，最后他们又注定见不上彼此一面。一个人真正从这个世界消失，是世界上没有一个人再记得他的故事，没有一个角落能听到他的传说。他死了，就像没有存在过。所以我们才有这么多关于死亡、鬼魂、重生的故事，所以我们才有这么多祭奠、祈求的习俗。曾经有人说，清明节的习俗其实是告诉活着的人在以后也要这么去凭吊自己的亲人。这话是有道理的，我们都不希望自己不留痕迹地离去，所以用力地活着，用力地去留下自己存在过的证据。</p><hr><p><strong><em>我们把祝福送给你。</em></strong></p><p><strong><em>没有任何条件。</em></strong></p><p>这段是米格的曾曾曾祖父和曾曾曾祖母一起对他说的。他们在看到将要日出的时候，唯一的想法就是把米格安全送回去。曾曾曾祖母不再纠结于对米格音乐梦想的限制，诶里克甚至也放弃了找回照片去看望coco的愿望。看吧，他们到底还是爱你的。最终他们也能接受你的面貌，忘记你的罪恶，忘记社会的公序良俗，忘记自己一生的愿望。他们希望你幸福，希望你快乐。只是有时候，他们会告诉你一些方法，会给你指一条路。如果这和你心里所盼望的不一样，你不要抱怨和责怪。他们只是希望你走得顺利一些，平稳一些。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;COCO-寻梦环游记&quot;&gt;&lt;a href=&quot;#COCO-寻梦环游记&quot; class=&quot;headerlink&quot; title=&quot;COCO 寻梦环游记&quot;&gt;&lt;/a&gt;COCO 寻梦环游记&lt;/h2&gt;&lt;p&gt;终于二刷。&lt;/p&gt;
+&lt;p&gt;墨西哥，亡灵节，梦想，家人。故事远不止寻梦，但是中
+      
+    
+    </summary>
+    
+      <category term="长叨叨" scheme="http://yoursite.com/categories/lt/"/>
     
     
   </entry>
@@ -174,59 +202,6 @@ var longestPalindrome = function(s) {
       <category term="学海无涯我游啊游" scheme="http://yoursite.com/categories/tech/"/>
     
       <category term="数据结构算法" scheme="http://yoursite.com/categories/tech/algorithm/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>[Bootstrap] - 基础 - 2</title>
-    <link href="http://yoursite.com/2017/02/20/Bootstrap/Bootstrap%20-%20%E5%9F%BA%E7%A1%80%20-%202/"/>
-    <id>http://yoursite.com/2017/02/20/Bootstrap/Bootstrap - 基础 - 2/</id>
-    <published>2017-02-20T08:40:03.000Z</published>
-    <updated>2018-11-27T02:45:08.991Z</updated>
-    
-    <content type="html"><![CDATA[<p>1. tabs, pills</p><p>1) &lt;ul class=”nav nav-tabs”&gt;, &lt;ul class=”nav, nav-pills”&gt;</p><p>2) &lt;li&gt;&lt;a data-toggle=”tab” href=”#p”&gt;&lt;/a&gt;&lt;/li&gt;</p><p>3) &lt;div class=”tab-content”&gt;&lt;p id=”p” class=”tab-pane”&gt;&lt;/p&gt;&lt;/div&gt;</p><p>2. navbar&nbsp;</p><p>1) &lt;ul class=”nav navbar-default”&gt; navbar-nav/navbar-right</p><p>3. form</p><p>1) .form-inline</p><p>2) .radio-inline .checkbox-inline</p><p>3) .input-group .input-group-addon</p><p>4) .inputlg .inputdefault .inputsm</p><p>4.&nbsp;Carousel</p><p>1) &lt;div id=”c” class=”carousel slide” data-ride=”carousel”&gt; &nbsp;//data-ride -start animation now</p><p>2) &lt;ol class=”carousel-indicator”&gt;&lt;li data-target=”#c” data-slide-to=”0”&gt;&lt;/li&gt;&lt;/ol&gt;</p><p>3) &lt;div class=”carousel-inner”&gt;&lt;div class=”item”&gt;&lt;/div&gt;&lt;/div&gt;</p><p>4) &lt;a class=”left carousel-control” data-target=”#c” role=”button” data-slide=”prev”&gt;&lt;/a&gt;</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;1. tabs, pills&lt;/p&gt;
-&lt;p&gt;1) &amp;lt;ul class=”nav nav-tabs”&amp;gt;, &amp;lt;ul class=”nav, nav-pills”&amp;gt;&lt;/p&gt;
-&lt;p&gt;2) &amp;lt;li&amp;gt;&amp;lt;a data-toggle=”tab” h
-      
-    
-    </summary>
-    
-      <category term="学海无涯我游啊游" scheme="http://yoursite.com/categories/tech/"/>
-    
-      <category term="HTML/css（HTML5/css3)" scheme="http://yoursite.com/categories/tech/htmlcss/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>[Bootstrap] - 基础 - 1</title>
-    <link href="http://yoursite.com/2017/02/17/Bootstrap/Bootstrap%20-%20%E5%9F%BA%E7%A1%80%20-%201/"/>
-    <id>http://yoursite.com/2017/02/17/Bootstrap/Bootstrap - 基础 - 1/</id>
-    <published>2017-02-17T10:36:42.000Z</published>
-    <updated>2018-11-27T02:45:08.990Z</updated>
-    
-    <content type="html"><![CDATA[<p>1. &lt;meta name=”viewport” content=”width=device-width, initial-scale=1”&gt; (mobile first bootstrap3)</p><p>2. container (fixed),&nbsp; container-fluid (full width of viewport)</p><p>3. grid - 12 col-xs/col-sm/col-md/col-lg</p><p>4.Typography</p><p>1) Default Settings: font-size: 14px; line-height: 1.428;</p><p>2) &lt;small&gt; create a smaller subtitle in header</p><p>3) &lt;mark&gt; highlight</p><p>4) &lt;abbr&gt;</p><p>5) <strong>Contextual color and background color:</strong> .text-primary, .text-muted, .text-success, .text-warning, .text-danger, .text-info, .bg-primary, .bg-success, .bg-warning, .bg-danger, bg-info</p><p>6) .text-left, .text-center, .text-right, .text-nowrap, .text-lowercase, .text-uppercase, .text-capitalize, .list-unstyled</p><p>5. Table</p><p>1) .table-stripped, .table-bordered, .table-hover, .table-condensed, .table-responsive</p><p>2) .active, .info, .success, .warning, .danger</p><p>6. Image</p><p>1) .img-rounded, img-circle, .img-thumbnail, .img-responsive</p><p>7. .jumbotron</p><p>8. .well, .well-sm, .well-lg</p><p>9. .alert .alert-success/info/danger/warning</p><p>10. Button (.btn)</p><p>1) .btn-primary, .btn-success, .btn-warning, .btn-danger, .btn-info</p><p>2) .btn-lg, .btn-md, .btn-sm, .btn-xs</p><p>3) .btn-block</p><p>4) .disabled, .active</p><p>11. .btn-group .btn-group-vertical .btn-group-justified</p><p>12. .badge .label</p><p>13. .pagination</p><p>14. .pager .previous .next</p><p>15. List Group</p><p>1) .list-group</p><p>2) .list-group-item</p><p>16. Dropdown</p><p>1) .dropdown</p><p>2) .dropdown-toggle data-toggle=”dropdown”</p><p>3) .dropdown-menu</p><p>4) .dropdown-header</p><p>5) .divider</p><p>17. Collapse</p><p>1) data-toggle=”collapse” data-target=”…”</p><p>2) data-toggle=”collapse” data-parent=”…”&nbsp; (simple accordion)</p><p>&nbsp;</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;1. &amp;lt;meta name=”viewport” content=”width=device-width, initial-scale=1”&amp;gt; (mobile first bootstrap3)&lt;/p&gt;
-&lt;p&gt;2. container (fixed),&amp;nbsp
-      
-    
-    </summary>
-    
-      <category term="学海无涯我游啊游" scheme="http://yoursite.com/categories/tech/"/>
-    
-      <category term="HTML/css（HTML5/css3)" scheme="http://yoursite.com/categories/tech/htmlcss/"/>
     
     
   </entry>
@@ -456,9 +431,9 @@ green; blue - this指针对于普通函数调用指向win
     <link href="http://yoursite.com/2017/02/12/%E9%9D%A2%E8%AF%95%E9%A2%98%E7%AC%94%E8%AE%B0/%E5%88%B7%E9%A2%98%E5%90%8E%E6%84%9F%E2%80%94%E2%80%94%E9%80%92%E5%BD%92/"/>
     <id>http://yoursite.com/2017/02/12/面试题笔记/刷题后感——递归/</id>
     <published>2017-02-11T16:20:41.000Z</published>
-    <updated>2018-11-27T02:45:08.996Z</updated>
+    <updated>2019-07-15T08:52:57.036Z</updated>
     
-    <content type="html"><![CDATA[<p>1 递归的次数和递归的深度问题。</p><p>递归次数与每次划分后得到的分区处理顺序无关。</p><p>对n个记录的线性表进行快速排序为减少算法递归深度，每次分区后先处理较短部分。</p><p>以上是题目中总结的知识点，第一条比较好理解，假设1，2，3，4四个数字，第一次划分得到（1），（2，3，4），先处理1 ，返回，处理（2，3，4）-&gt;（2）返回，（3，4）-&gt;（3）返回，（4）返回，和先处理大分区是相同的划分过程，（1，2，3，4）-&gt;（1），（2，3，4）-&gt;（1），（2），（3，4）-&gt;（1），（2），（3），（4）再逐一返回。由这个划分大致可以看出大小分区的处理先后顺序并不影响递归的次数。</p><p>递归深度可以理解为系统栈保存的深度（题目解析这么说的，摊手）。那同样是上面这个例子，两种处理方式就可以看出栈的深度不同，小分区，处理1时，栈中存一个元素（2，3，4），返回后再处理（2，3，4），同样（3，4）仅占用一个位置，这样栈的深度仅为1。第二种方式，处理（2，3，4）时，1入栈，-&gt;2入栈，处理（3，4）-&gt;3入栈-&gt;处理4，再依次返回，所以在处理4的时候栈的深度可以达到4。</p><p>——以上为个人根据答案和讨论区内容的理解，如有瞎扯淡，望指正。</p>]]></content>
+    <content type="html"><![CDATA[<p>1 递归的次数和递归的深度问题。</p><p>递归次数与每次划分后得到的分区处理顺序无关。</p><p>对n个记录的线性表进行快速排序为减少算法递归深度，每次分区后先处理较短部分。</p><p>以上是题目中总结的知识点，第一条比较好理解，假设1，2，3，4四个数字，第一次划分得到（1），（2，3，4），先处理1 ，返回，处理（2，3，4）-&gt;（2）返回，（3，4）-&gt;（3）返回，（4）返回，和先处理大分区是相同的划分过程，（1，2，3，4）-&gt;（1），（2，3，4）-&gt;（1），（2），（3，4）-&gt;（1），（2），（3），（4）再逐一返回。由这个划分大致可以看出大小分区的处理先后顺序并不影响递归的次数。</p><p>递归深度可以理解为系统栈保存的深度（题目解析这么说的，摊手）。那同样是上面这个例子，两种处理方式就可以看出栈的深度不同，小分区，处理1时，栈中存一个元素（2，3，4），返回后再处理（2，3，4），同样（3，4）仅占用一个位置，这样栈的深度仅为1。第二种方式，处理（2，3，4）时，1入栈，-&gt;2入栈，处理（3，4）-&gt;3入栈-&gt;处理4，再依次返回，所以在处理4的时候栈的深度可以达到4。</p>]]></content>
     
     <summary type="html">
     
@@ -474,7 +449,7 @@ green; blue - this指针对于普通函数调用指向win
     
       <category term="学海无涯我游啊游" scheme="http://yoursite.com/categories/tech/"/>
     
-      <category term="去特么的面试题" scheme="http://yoursite.com/categories/tech/interview/"/>
+      <category term="Javascript" scheme="http://yoursite.com/categories/tech/js/"/>
     
     
   </entry>
@@ -505,33 +480,6 @@ green; blue - this指针对于普通函数调用指向win
       <category term="学海无涯我游啊游" scheme="http://yoursite.com/categories/tech/"/>
     
       <category term="HTML/css（HTML5/css3)" scheme="http://yoursite.com/categories/tech/htmlcss/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>关于他们所说的必然</title>
-    <link href="http://yoursite.com/2017/02/11/%E5%8F%AA%E8%A8%80%E7%89%87%E8%AF%AD/%E5%85%B3%E4%BA%8E%E4%BB%96%E4%BB%AC%E6%89%80%E8%AF%B4%E7%9A%84%E5%BF%85%E7%84%B6/"/>
-    <id>http://yoursite.com/2017/02/11/只言片语/关于他们所说的必然/</id>
-    <published>2017-02-11T01:51:22.000Z</published>
-    <updated>2018-11-27T02:45:08.993Z</updated>
-    
-    <content type="html"><![CDATA[<p>所有预言不过是一次对被预测者的攻心。</p><p>不管你信与不信，愿不愿意，你的意识、潜意识都藏起了这个预言的影子，</p><p>像是一粒极不起眼的种子，捕风捉影，茁壮成长。</p><p>未来某一天，它就长出一棵树，它就变成一片海，</p><p>让你看着这山川河流，浩瀚宇宙而敬畏，而臣服。</p><p>然后，你会听见人们铿锵的低语</p><p>看啊，果不其然。</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;所有预言不过是一次对被预测者的攻心。&lt;/p&gt;
-&lt;p&gt;不管你信与不信，愿不愿意，你的意识、潜意识都藏起了这个预言的影子，&lt;/p&gt;
-&lt;p&gt;像是一粒极不起眼的种子，捕风捉影，茁壮成长。&lt;/p&gt;
-&lt;p&gt;未来某一天，它就长出一棵树，它就变成一片海，&lt;/p&gt;
-&lt;p&gt;让你看着这山川河流，
-      
-    
-    </summary>
-    
-      <category term="短逼逼" scheme="http://yoursite.com/categories/st/"/>
     
     
   </entry>
